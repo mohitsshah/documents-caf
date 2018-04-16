@@ -1,0 +1,12 @@
+.idea
+*.json
+*.png
+*.pdf
+*.pyc
+*.py~
+*.*~
+*~
+*.xml
+*.txt
+*.html
+*.bin
