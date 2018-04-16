@@ -13,7 +13,7 @@ def get_files(src):
     return files
 
 
-def process_file(item, dst, overwrite):
+def process_file(item, dst, overwrite, tessdata):
     filename, dirs, src = item
     dst_dir = os.path.join(dst, dirs, filename)
     if not os.path.exists(dst_dir):
@@ -22,7 +22,7 @@ def process_file(item, dst, overwrite):
     if os.path.exists(os.path.join(dst_dir, filename + ".json")) and not overwrite:
         return False
     shutil.copy(src, dst_file)
-    status, message = pdfProcessor.parse(filename, dst_dir, overwrite)
+    status, message = pdfProcessor.parse(filename, dst_dir, overwrite, tessdata)
     if not status:
         raise Exception(message)
     return status
@@ -37,11 +37,13 @@ def run(args):
         os.makedirs(dst, exist_ok=True)
     overwrite = args.overwrite
     overwrite = True if overwrite == "y" else False
+    tessdata = args.tessdata
+    tessdata = tessdata if len(tessdata) > 0 else None
     files = get_files(src)
     print("Found %d PDF files in %s" % (len(files), src))
     for f in files:
         print("Processing %s" % f[-1], "-In Progress")
-        status = process_file(f, dst, overwrite)
+        status = process_file(f, dst, overwrite, tessdata)
         if status:
             print("Processing %s" % f[-1], "-Complete")
 
@@ -51,6 +53,7 @@ if __name__ == '__main__':
     flags.add_argument("-src", type=str, required=True, help="Source directory of files")
     flags.add_argument("-dst", type=str, required=True, help="Destination directory")
     flags.add_argument("-overwrite", type=str, choices=["y", "n"], default="n", help="Overwrite files")
+    flags.add_argument("-tessdata", type=str, default="", help="Path to Tessdata model for tesserocr")
     args = flags.parse_args()
     try:
         run(args)
