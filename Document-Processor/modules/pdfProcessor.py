@@ -8,6 +8,7 @@ from lxml import html
 import modules.pdfToXML as pdfToXML
 from tesserocr import PyTessBaseAPI, RIL, PSM, iterate_level, OEM
 import copy
+import tabula
 
 BlockType = [
     "UNKNOWN",
@@ -29,7 +30,7 @@ BlockType = [
 ]
 
 
-def parse(filename, dir_path, overwrite=False, tessdata=None):
+def parse(filename, dir_path, overwrite=False, tessdata=None, use_tabula=True, use_tesseract=True):
     def get_attribs(items):
         obj = {}
         for item in items:
@@ -109,6 +110,15 @@ def parse(filename, dir_path, overwrite=False, tessdata=None):
             os.system(cmd)
             return outfile
 
+    def tabula_extract(filename, page_num, overwrite=False):
+        infile = filename + '.pdf'
+        outfile = filename + '-%s.json' % page_num
+        if os.path.exists(outfile) and not overwrite:
+            return True
+        tabula.convert_into(infile, pages=page_num,
+                            output_path=outfile, output_format="json", multiple_tables=True)
+        return
+
     def convert_to_xml(filename, overwrite=False):
         infile = filename + '.pdf'
         outfile = filename + '.xml'
@@ -134,14 +144,17 @@ def parse(filename, dir_path, overwrite=False, tessdata=None):
 
             print('Number of Pages: ', len(page_ids))
             for id in page_ids:
-                json_path = filename + "-%s.json" % id
-                if os.path.exists(json_path) and not overwrite:
-                    continue
-                image_file = convert_page_to_image(filename, id)
-                document = run_tesseract(image_file)
-                with open(json_path, "w") as fi:
-                    fi.write(json.dumps(document))
-                os.remove(image_file)
+                if use_tabula:
+                    tabula_extract(filename, id, overwrite)
+                if use_tesseract:
+                    json_path = filename + "-%s.json" % id
+                    if os.path.exists(json_path) and not overwrite:
+                        continue
+                    image_file = convert_page_to_image(filename, id)
+                    document = run_tesseract(image_file)
+                    with open(json_path, "w") as fi:
+                        fi.write(json.dumps(document))
+                    os.remove(image_file)
             return True, None
         else:
             return False, "XML Conversion Error"

@@ -13,7 +13,7 @@ def get_files(src):
     return files
 
 
-def process_file(item, dst, overwrite, tessdata):
+def process_file(item, dst, overwrite, tessdata, use_tabula, use_tesseract):
     filename, dirs, src = item
     dst_dir = os.path.join(dst, dirs, filename)
     if not os.path.exists(dst_dir):
@@ -22,7 +22,7 @@ def process_file(item, dst, overwrite, tessdata):
     if os.path.exists(os.path.join(dst_dir, filename + ".json")) and not overwrite:
         return False
     shutil.copy(src, dst_file)
-    status, message = pdfProcessor.parse(filename, dst_dir, overwrite, tessdata)
+    status, message = pdfProcessor.parse(filename, dst_dir, overwrite, tessdata, use_tabula, use_tesseract)
     if not status:
         raise Exception(message)
     return status
@@ -39,11 +39,13 @@ def run(args):
     overwrite = True if overwrite == "y" else False
     tessdata = args.tessdata
     tessdata = tessdata if len(tessdata) > 0 else None
+    use_tabula = True if args.tabula == "y" else False
+    use_tesseract = True if args.tesseract == "y" else False
     files = get_files(src)
     print("Found %d PDF files in %s" % (len(files), src))
     for f in files:
         print("Processing %s" % f[-1], "-In Progress")
-        status = process_file(f, dst, overwrite, tessdata)
+        status = process_file(f, dst, overwrite, tessdata, use_tabula, use_tesseract)
         if status:
             print("Processing %s" % f[-1], "-Complete")
 
@@ -54,6 +56,8 @@ if __name__ == '__main__':
     flags.add_argument("-dst", type=str, required=True, help="Destination directory")
     flags.add_argument("-overwrite", type=str, choices=["y", "n"], default="n", help="Overwrite files")
     flags.add_argument("-tessdata", type=str, default="", help="Path to Tessdata model for tesserocr")
+    flags.add_argument("-tabula", type=str, choices=["y", "n"], default="n", help="Use tabula to extract tables")
+    flags.add_argument("-tesseract", type=str, choices=["y", "n"], default="n", help="Use tesseract on each page")
     args = flags.parse_args()
     try:
         run(args)
