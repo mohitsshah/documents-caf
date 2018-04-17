@@ -24,7 +24,9 @@ def process_file(item, dst, overwrite, tessdata, use_tabula, use_tesseract):
     shutil.copy(src, dst_file)
     status, message = pdfProcessor.parse(filename, dst_dir, overwrite, tessdata, use_tabula, use_tesseract)
     if not status:
-        raise Exception(message)
+        print (message)
+        pass
+        # raise Exception(message)
     return status
 
 
