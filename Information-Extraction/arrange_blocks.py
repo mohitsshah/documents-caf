@@ -20,6 +20,7 @@ def get_page_text(tree, dims):
     text = []
     tb = {}
     lines = []
+    line_num = 0
     for box in text_boxes:
         box_id = box.attrib["id"]
         box_coords = box.attrib["bbox"].split(",")
@@ -35,14 +36,14 @@ def get_page_text(tree, dims):
                         words.append(child.text)
                 words = ''.join(words)
                 line_coords.append(box_id)
+                line_coords.append(line_num)
                 line_coords.append(words)
                 lines.append(line_coords)
                 text.append(words)
-    text = ''.join(text)
-    print(len(lines), len(tb))
-    blocks = []
+                line_num += 1
+    groups = {}
     indices = []
-    groups = []
+    # groups = []
     for idx, line in enumerate(lines):
         if idx not in indices:
             tmp = [idx]
@@ -53,45 +54,89 @@ def get_page_text(tree, dims):
                     y = line2[1]
                     x = line2[0]
                     if y == ref_y:
-                        if np.abs(x - end_x) > 0.4*width:
+                        if np.abs(x - end_x) > 0.4 * width:
                             pass
                         else:
                             tmp.append(idx2)
-            groups.append(tmp)
+            tmp = list(set(tmp))
+            tmp_lines = [lines[dx] for dx in tmp]
+            tmp_lines = sorted(tmp_lines, key=lambda x: (-x[1], x[0]))
+            if len(tmp_lines) > 0:
+                groups[tmp_lines[0][-2]] = tmp_lines
             indices.extend(tmp)
             indices = list(set(indices))
-    groups = sorted(groups, key=lambda x: len(x))
-    groups.reverse()
+    # for k, v in groups.items():
+    #     print (v)
+    new_groups = {}
     indices = []
-    new_groups = []
-    for g in groups:
-        tmp = []
-        for idx in g:
-            if idx not in indices:
-                tmp.append(idx)
-                box_id = lines[idx][-2]
-                for idx2, line2 in enumerate(lines):
-                    if (idx2 not in indices) and (idx != idx2):
-                        if line2[-2] == box_id:
-                            tmp.append(idx2)
-        if len(tmp) > 0:
-            new_groups.append(tmp)
-            indices.extend(tmp)
-    blocks = []
-    for g in new_groups:
-        items = []
-        for idx in g:
-            items.append(lines[idx])
-        items = sorted(items, key=lambda x: (-x[1], x[0]))
-        txt = []
-        d = [items[0][0], items[0][1], items[-1][2], items[-1][3]]
+    keys = sorted(groups, key=lambda k: len(groups[k]), reverse=True)
+    for k in keys:
+        inds = []
+        items = groups[k]
         for item in items:
-            txt.append(item[-1].lstrip().rstrip())
-        d.append(' '.join(txt))
-        blocks.append(d)
+            idx = item[-2]
+            if idx not in indices:
+                indices.append(idx)
+                inds.append(idx)
+                box_id = int(item[-3])
+                for line in lines:
+                    idx2 = line[-2]
+                    box2_id = int(line[-3])
+                    if idx2 not in indices:
+                        if box2_id == box_id:
+                            if idx2 in groups:
+                                items2 = groups[idx2]
+                                for tmp in items2:
+                                    inds.append(tmp[-2])
+                                    indices.append(tmp[-2])
+        inds = list(set(inds))
+        tmp_lines = [lines[dx] for dx in inds]
+        tmp_lines = sorted(tmp_lines, key=lambda x: (-x[1], x[0]))
+        if len(tmp_lines) > 0:
+            new_groups[tmp_lines[0][-2]] = tmp_lines
+        indices = list(set(indices))
+    blocks = []
+    for k, v in new_groups.items():
+        tmp = []
+        for item in v:
+            tmp.append(item[-1].rstrip().lstrip())
+        text = " ".join(tmp)
+        if len(text.rstrip().lstrip()) > 0:
+            blocks.append([v[0][0], v[0][1], v[-1][2], v[-1][3], text])
     blocks = sorted(blocks, key=lambda x: (-x[1], x[0]))
-    blocks = [b[-1] for b in blocks if len(b[-1].lstrip().rstrip()) > 0]
+    blocks = [b[-1] for b in blocks]
     return blocks
+    # groups.reverse()
+    # indices = []
+    # new_groups = []
+    # for g in groups:
+    #     tmp = []
+    #     for idx in g:
+    #         if idx not in indices:
+    #             tmp.append(idx)
+    #             box_id = lines[idx][-2]
+    #             for idx2, line2 in enumerate(lines):
+    #                 if (idx2 not in indices) and (idx != idx2):
+    #                     if line2[-2] == box_id:
+    #                         tmp.append(idx2)
+    #     if len(tmp) > 0:
+    #         new_groups.append(tmp)
+    #         indices.extend(tmp)
+    # blocks = []
+    # for g in new_groups:
+    #     items = []
+    #     for idx in g:
+    #         items.append(lines[idx])
+    #     items = sorted(items, key=lambda x: (-x[1], x[0]))
+    #     txt = []
+    #     d = [items[0][0], items[0][1], items[-1][2], items[-1][3]]
+    #     for item in items:
+    #         txt.append(item[-1].lstrip().rstrip())
+    #     d.append(' '.join(txt))
+    #     blocks.append(d)
+    # blocks = sorted(blocks, key=lambda x: (-x[1], x[0]))
+    # blocks = [b[-1] for b in blocks if len(b[-1].lstrip().rstrip()) > 0]
+    # return blocks
 
 
 def search_phrase(phrase, blocks):
@@ -100,7 +145,7 @@ def search_phrase(phrase, blocks):
         for bidx, block in enumerate(page_blocks):
             tmp = [m.start() for m in re.finditer(phrase.lower(), block.lower())]
             for t in tmp:
-                print (t)
+                print(t)
                 matches.append((pidx, bidx, t))
     return matches
 
@@ -113,14 +158,14 @@ def get_passages(matches, blocks, window=2):
             page_blocks = blocks[m[0]]
             L = len(page_blocks)
             texts = []
-            for j in range(1, window+1):
+            for j in range(1, window + 1):
                 if m[1] - j >= 0:
-                    texts.append(page_blocks[m[1]-j])
+                    texts.append(page_blocks[m[1] - j])
             texts.reverse()
             texts.append(page_blocks[m[1]])
-            for j in range(1, window+1):
+            for j in range(1, window + 1):
                 if m[1] + j < L:
-                    texts.append(page_blocks[m[1]+j])
+                    texts.append(page_blocks[m[1] + j])
             for i, t in enumerate(texts):
                 if not t.endswith("."):
                     texts[i] += "."
@@ -166,11 +211,11 @@ def run(args):
         print("Found %d matches" % (len(matches)))
         passages = get_passages(matches, blocks)
         for p in passages:
-            print ()
-            print ("** PASSAGE START **")
-            print (p[-1])
+            print()
+            print("** PASSAGE START **")
+            print(p[-1])
             print("** PASSAGE END **")
-            print ()
+            print()
 
 
 if __name__ == '__main__':
