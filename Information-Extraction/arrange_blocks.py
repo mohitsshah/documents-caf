@@ -43,13 +43,16 @@ def get_page_text(tree, dims):
                 line_num += 1
     groups = {}
     indices = []
+    lines = sorted(lines, key=lambda x: (-x[1], x[0]))
     # groups = []
-    for idx, line in enumerate(lines):
+    for line in lines:
+        idx = line[-2]
         if idx not in indices:
             tmp = [idx]
             ref_y = line[1]
             end_x = line[2]
-            for idx2, line2 in enumerate(lines):
+            for line2 in lines:
+                idx2 = line2[-2]
                 if (idx2 not in indices) and (idx != idx2):
                     y = line2[1]
                     x = line2[0]
@@ -59,7 +62,7 @@ def get_page_text(tree, dims):
                         else:
                             tmp.append(idx2)
             tmp = list(set(tmp))
-            tmp_lines = [lines[dx] for dx in tmp]
+            tmp_lines = [line for line in lines if line[-2] in tmp]
             tmp_lines = sorted(tmp_lines, key=lambda x: (-x[1], x[0]))
             if len(tmp_lines) > 0:
                 groups[tmp_lines[0][-2]] = tmp_lines
@@ -89,7 +92,7 @@ def get_page_text(tree, dims):
                                         inds.append(tmp[-2])
                                         indices.append(tmp[-2])
         inds = list(set(inds))
-        tmp_lines = [lines[dx] for dx in inds]
+        tmp_lines = [line for line in lines if line[-2] in inds]
         tmp_lines = sorted(tmp_lines, key=lambda x: (-x[1], x[0]))
         if len(tmp_lines) > 0:
             new_groups[tmp_lines[0][-2]] = tmp_lines
