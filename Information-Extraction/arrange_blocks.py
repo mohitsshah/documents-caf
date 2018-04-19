@@ -41,12 +41,14 @@ class Reader(object):
                         if child.tag == "text":
                             words.append(child.text)
                     words = ''.join(words)
-                    line_coords.append(box_id)
-                    line_coords.append(line_num)
-                    line_coords.append(words)
-                    lines.append(line_coords)
-                    text.append(words)
-                    line_num += 1
+                    words = words.rstrip().lstrip()
+                    if len(words) > 0:
+                        line_coords.append(box_id)
+                        line_coords.append(line_num)
+                        line_coords.append(words)
+                        lines.append(line_coords)
+                        text.append(words)
+                        line_num += 1
         groups = {}
         indices = []
         lines = sorted(lines, key=lambda x: (-x[1], x[0]))
