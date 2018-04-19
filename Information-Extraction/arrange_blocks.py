@@ -65,8 +65,6 @@ def get_page_text(tree, dims):
                 groups[tmp_lines[0][-2]] = tmp_lines
             indices.extend(tmp)
             indices = list(set(indices))
-    # for k, v in groups.items():
-    #     print (v)
     new_groups = {}
     indices = []
     keys = sorted(groups, key=lambda k: len(groups[k]), reverse=True)
@@ -86,9 +84,10 @@ def get_page_text(tree, dims):
                         if box2_id == box_id:
                             if idx2 in groups:
                                 items2 = groups[idx2]
-                                for tmp in items2:
-                                    inds.append(tmp[-2])
-                                    indices.append(tmp[-2])
+                                if len(items2) < 2:
+                                    for tmp in items2:
+                                        inds.append(tmp[-2])
+                                        indices.append(tmp[-2])
         inds = list(set(inds))
         tmp_lines = [lines[dx] for dx in inds]
         tmp_lines = sorted(tmp_lines, key=lambda x: (-x[1], x[0]))
@@ -106,37 +105,6 @@ def get_page_text(tree, dims):
     blocks = sorted(blocks, key=lambda x: (-x[1], x[0]))
     blocks = [b[-1] for b in blocks]
     return blocks
-    # groups.reverse()
-    # indices = []
-    # new_groups = []
-    # for g in groups:
-    #     tmp = []
-    #     for idx in g:
-    #         if idx not in indices:
-    #             tmp.append(idx)
-    #             box_id = lines[idx][-2]
-    #             for idx2, line2 in enumerate(lines):
-    #                 if (idx2 not in indices) and (idx != idx2):
-    #                     if line2[-2] == box_id:
-    #                         tmp.append(idx2)
-    #     if len(tmp) > 0:
-    #         new_groups.append(tmp)
-    #         indices.extend(tmp)
-    # blocks = []
-    # for g in new_groups:
-    #     items = []
-    #     for idx in g:
-    #         items.append(lines[idx])
-    #     items = sorted(items, key=lambda x: (-x[1], x[0]))
-    #     txt = []
-    #     d = [items[0][0], items[0][1], items[-1][2], items[-1][3]]
-    #     for item in items:
-    #         txt.append(item[-1].lstrip().rstrip())
-    #     d.append(' '.join(txt))
-    #     blocks.append(d)
-    # blocks = sorted(blocks, key=lambda x: (-x[1], x[0]))
-    # blocks = [b[-1] for b in blocks if len(b[-1].lstrip().rstrip()) > 0]
-    # return blocks
 
 
 def search_phrase(phrase, blocks):
@@ -209,7 +177,7 @@ def run(args):
             break
         matches = search_phrase(phrase, blocks)
         print("Found %d matches" % (len(matches)))
-        passages = get_passages(matches, blocks)
+        passages = get_passages(matches, blocks, window=1)
         for p in passages:
             print()
             print("** PASSAGE START **")
