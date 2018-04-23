@@ -112,7 +112,7 @@ def parse(filename, dir_path, overwrite=False, tessdata=None, use_tabula=True, u
 
     def tabula_extract(filename, page_num, overwrite=False):
         infile = filename + '.pdf'
-        outfile = filename + '-%s.json' % page_num
+        outfile = filename + '-%s.table.json' % page_num
         if os.path.exists(outfile) and not overwrite:
             return True
         tabula.convert_into(infile, pages=page_num,
