@@ -160,6 +160,7 @@ class Reader(object):
                 block_type = 1
             for item in items:
                 idx = item[-2]
+                h = np.abs(item[1] - item[3])
                 if idx not in indices:
                     indices.append(idx)
                     inds.append(idx)
@@ -173,8 +174,12 @@ class Reader(object):
                                     items2 = groups[idx2]
                                     if len(items2) < 2:
                                         for tmp in items2:
-                                            inds.append(tmp[-2])
-                                            indices.append(tmp[-2])
+                                            yy = np.abs(tmp[3] - item[1])
+                                            if yy > h:
+                                                pass
+                                            else:
+                                                inds.append(tmp[-2])
+                                                indices.append(tmp[-2])
             inds = list(set(inds))
             tmp_lines = [line for line in lines if line[-2] in inds]
             tmp_lines = sorted(tmp_lines, key=lambda x: (-x[1], x[0]))
@@ -184,9 +189,9 @@ class Reader(object):
             indices = list(set(indices))
         blocks = []
         key_values = []
-        multi_columns = []
+        # multi_columns = []
         for k, v in new_groups.items():
-            if block_types[k] == 0:
+            if block_types[k] != 1:
                 tmp = []
                 for item in v:
                     tmp.append(item[-1].rstrip().lstrip())
@@ -211,15 +216,15 @@ class Reader(object):
                 for kk in V:
                     v_text.append(kk[-1])
                 key_values.append([" ".join(k_text), " ".join(v_text)])
-            elif block_types[k] == 2:
-                print (v)
-                pass
+            # elif block_types[k] == 2:
+            #     print (v)
+            #     pass
                 # print (v)
         blocks = sorted(blocks, key=lambda x: (-x[1], x[0]))
         blocks = [b[-1] for b in blocks]
         return blocks, key_values
 
-    def search_phrase(self, phrase, blocks):
+    def search_phrase_blocks(self, phrase, blocks):
         matches = []
         for pidx, page_blocks in enumerate(blocks):
             for bidx, block in enumerate(page_blocks):
@@ -228,8 +233,8 @@ class Reader(object):
                     matches.append((pidx, bidx, t))
         return matches
 
-    def get_passages(self, phrase, blocks, window=2):
-        matches = self.search_phrase(phrase, blocks)
+    def get_passages_blocks(self, phrase, blocks, window=2):
+        matches = self.search_phrase_blocks(phrase, blocks)
         passages = []
         indices = []
         for m in matches:
@@ -248,6 +253,40 @@ class Reader(object):
                 for i, t in enumerate(texts):
                     if not t.endswith("."):
                         texts[i] += "."
+                passages.append([m[0], m[1], "\n".join(texts)])
+                indices.append((m[0], m[1]))
+        return passages
+
+    def search_phrase_kv(self, phrase, key_values):
+        matches = []
+        for pidx, page_kv in enumerate(key_values):
+            for bidx, block in enumerate(page_kv):
+                tt = " ".join(block)
+                tmp = [m.start() for m in re.finditer(phrase.lower(), tt.lower())]
+                for t in tmp:
+                    matches.append((pidx, bidx, t))
+        return matches
+
+    def get_passages_kv(self, phrase, key_values, window=2):
+        matches = self.search_phrase_kv(phrase, key_values)
+        passages = []
+        indices = []
+        for m in matches:
+            if (m[0], m[1]) not in indices:
+                page_kv = blocks[m[0]]
+                L = len(page_kv)
+                texts = []
+                for j in range(1, window + 1):
+                    if m[1] - j >= 0:
+                        texts.append(page_kv[m[1] - j])
+                texts.reverse()
+                texts.append(page_kv[m[1]])
+                for j in range(1, window + 1):
+                    if m[1] + j < L:
+                        texts.append(page_kv[m[1] + j])
+                # for i, t in enumerate(texts):
+                #     if not t.endswith("."):
+                #         texts[i] += "."
                 passages.append([m[0], m[1], "\n".join(texts)])
                 indices.append((m[0], m[1]))
         return passages
@@ -276,7 +315,7 @@ class Reader(object):
             page_tree = root.find(selector)
             page_blocks, kv = self.get_page_text(page_tree, page_dims[i])
             blocks.append(page_blocks)
-            key_values.extend(kv)
+            key_values.append(kv)
         return blocks, key_values
 
 
@@ -287,7 +326,7 @@ if __name__ == '__main__':
     try:
         reader = Reader(args=args)
         blocks = reader.get_text_blocks()
-        passages = reader.get_passages("address", blocks, window=1)
+        passages = reader.get_passages_blocks("address", blocks, window=1)
         for p in passages:
             print(p)
     except Exception as e:
