@@ -94,8 +94,8 @@ class Reader(object):
                 if i == 0:
                     line.append(ww)
                 else:
-                    g = ww[0] - W[i-1][2]
-                    if g > 4.*med:
+                    g = ww[0] - W[i - 1][2]
+                    if g > 4. * med:
                         chars = []
                         for l in line:
                             chars.append(l[-1])
@@ -197,6 +197,17 @@ class Reader(object):
                     tmp.append(item[-1].rstrip().lstrip())
                 text = " ".join(tmp)
                 if len(text.rstrip().lstrip()) > 0:
+                    tmp = text.split("  ")
+                    new_tmp = []
+                    for tt in tmp:
+                        ttt = tt.split(" ")
+                        lts = [len(x) for x in ttt]
+                        lts = list(set(lts))
+                        if len(lts) == 1 and lts[0] == 1 and len(ttt) > 2:
+                            new_tmp.append("".join(ttt))
+                        else:
+                            new_tmp.extend(ttt)
+                    text = " ".join(new_tmp)
                     blocks.append([v[0][0], v[0][1], v[-1][2], v[-1][3], text])
             elif block_types[k] == 1:
                 ref_item = v[0]
@@ -215,26 +226,37 @@ class Reader(object):
                     k_text.append(kk[-1])
                 for kk in V:
                     v_text.append(kk[-1])
-                key_values.append([" ".join(k_text), " ".join(v_text)])
-            # elif block_types[k] == 2:
-            #     print (v)
-            #     pass
-                # print (v)
+                tmp_k = " ".join(k_text).split("/")
+                tmp_v = " ".join(v_text).split("/")
+                if len(tmp_k) == len(tmp_v):
+                    for xx in range(len(tmp_k)):
+                        key_values.append([tmp_k[xx], tmp_v[xx]])
+                elif len(tmp_k) > 1 and len(tmp_v) == 1:
+                    for xx in range(len(tmp_k)):
+                        key_values.append([tmp_k[xx], tmp_v[0]])
+                else:
+                    key_values.append([" ".join(k_text), " ".join(v_text)])
+                    # elif block_types[k] == 2:
+                    #     print (v)
+                    #     pass
+                    # print (v)
         blocks = sorted(blocks, key=lambda x: (-x[1], x[0]))
         blocks = [b[-1] for b in blocks]
+
         return blocks, key_values
 
-    def search_phrase_blocks(self, phrase, blocks):
+    def search_phrase_blocks(self, phrase, blocks, selected_pages):
         matches = []
         for pidx, page_blocks in enumerate(blocks):
-            for bidx, block in enumerate(page_blocks):
-                tmp = [m.start() for m in re.finditer(phrase.lower(), block.lower())]
-                for t in tmp:
-                    matches.append((pidx, bidx, t))
+            if pidx in selected_pages:
+                for bidx, block in enumerate(page_blocks):
+                    tmp = [m.start() for m in re.finditer(phrase.lower(), block.lower())]
+                    for t in tmp:
+                        matches.append((pidx, bidx, t))
         return matches
 
-    def get_passages_blocks(self, phrase, blocks, window=2):
-        matches = self.search_phrase_blocks(phrase, blocks)
+    def get_passages_blocks(self, phrase, blocks, selected_pages, window=2):
+        matches = self.search_phrase_blocks(phrase, blocks, selected_pages)
         passages = []
         indices = []
         for m in matches:
@@ -257,23 +279,24 @@ class Reader(object):
                 indices.append((m[0], m[1]))
         return passages
 
-    def search_phrase_kv(self, phrase, key_values):
+    def search_phrase_kv(self, phrase, key_values, selected_pages):
         matches = []
         for pidx, page_kv in enumerate(key_values):
-            for bidx, block in enumerate(page_kv):
-                tt = " ".join(block)
-                tmp = [m.start() for m in re.finditer(phrase.lower(), tt.lower())]
-                for t in tmp:
-                    matches.append((pidx, bidx, t))
+            if pidx in selected_pages:
+                for bidx, block in enumerate(page_kv):
+                    tt = " ".join(block)
+                    tmp = [m.start() for m in re.finditer(phrase.lower(), tt.lower())]
+                    for t in tmp:
+                        matches.append((pidx, bidx, t))
         return matches
 
-    def get_passages_kv(self, phrase, key_values, window=2):
-        matches = self.search_phrase_kv(phrase, key_values)
+    def get_passages_kv(self, phrase, key_values, selected_pages, window=2):
+        matches = self.search_phrase_kv(phrase, key_values, selected_pages)
         passages = []
         indices = []
         for m in matches:
             if (m[0], m[1]) not in indices:
-                page_kv = blocks[m[0]]
+                page_kv = key_values[m[0]]
                 L = len(page_kv)
                 texts = []
                 for j in range(1, window + 1):
@@ -284,12 +307,45 @@ class Reader(object):
                 for j in range(1, window + 1):
                     if m[1] + j < L:
                         texts.append(page_kv[m[1] + j])
-                # for i, t in enumerate(texts):
-                #     if not t.endswith("."):
-                #         texts[i] += "."
-                passages.append([m[0], m[1], "\n".join(texts)])
+                passages.append([m[0], m[1], texts])
                 indices.append((m[0], m[1]))
         return passages
+
+    def search(self, phrase, blocks, key_values, texts, contexts=None, excludes=None):
+        with_context = []
+        without_context = []
+        for p, text in enumerate(texts):
+            text = text.lower()
+            exclude_found = False
+            if excludes is not None:
+                for exclude in excludes:
+                    idx = text.find(exclude.lower())
+                    if idx > -1:
+                        exclude_found = True
+                        break
+            if exclude_found:
+                continue
+
+            idx = text.find(phrase.lower())
+            if idx < 0:
+                continue
+
+            context_found = False
+            if contexts is not None:
+                for context in contexts:
+                    idx = text.find(context.lower())
+                    if idx > -1:
+                        context_found = True
+                        break
+            if context_found:
+                with_context.append(p)
+            else:
+                without_context.append(p)
+
+        selected_pages = with_context if len(with_context) > 0 else without_context
+        kv_matches = self.get_passages_kv(phrase, key_values, selected_pages, window=0)
+        block_matches = self.get_passages_blocks(phrase, blocks, selected_pages)
+        return selected_pages, kv_matches, block_matches
 
     def get_text_blocks(self):
         if not os.path.exists(self.file_path):
@@ -310,13 +366,20 @@ class Reader(object):
         print('Number of Pages: ', len(page_ids))
         blocks = []
         key_values = []
+        texts = []
         for i, id in enumerate(page_ids):
+            page_text = []
             selector = "./page[@id=" + "'" + id + "']"
             page_tree = root.find(selector)
             page_blocks, kv = self.get_page_text(page_tree, page_dims[i])
             blocks.append(page_blocks)
             key_values.append(kv)
-        return blocks, key_values
+            page_text.append("\n".join(page_blocks))
+            page_text.extend([" ".join(items) for items in kv])
+            print(page_text)
+            page_text = "\n".join(page_text)
+            texts.append(page_text)
+        return blocks, key_values, texts
 
 
 if __name__ == '__main__':
