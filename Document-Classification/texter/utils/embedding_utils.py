@@ -5,10 +5,45 @@ from gensim.utils import simple_preprocess
 from gensim.models.keyedvectors import KeyedVectors
 from keras.layers import Embedding
 
+import warnings
+warnings.simplefilter("ignore")
+
+__all__ = ['glove_embedding_layer', 'word2vec_embedding_layer']
+
 
 def glove_embedding_layer(pretrained_embeddings_path, word_index, MAX_WORDS=20000,
                           EMBEDDING_DIM=300, MAX_SEQUENCE_LENGTH=1000, pretrained_weights=True):
+    """
+    Returns a Keras Embedding layer, with pretrained glove embeddings.
+    which can be found here: https://nlp.stanford.edu/projects/glove/
 
+    Parameters:
+
+    pretrained_embeddings_path: str
+        path to pretrained glove embeddings.
+
+    word_index: dict
+        an index of words from the dataset, returned by the keras_tokenizer.
+
+    MAX_WORDS: int
+        max number of words to be included in the processing.
+
+    EMBEDDING_DIM: int
+        dimension of the embedding layer.
+
+    MAX_SEQUENCE_LENGTH: int
+        maximum length of the sequence to be considered.
+
+    pretrained_weights: bool
+        if `true` returns the layer with pretrainned embeddings, 
+        if `false` returns a layer without pretrained embeddings.
+
+    Returns: 
+
+        Keras `Embedding` layer object
+
+
+    """
     embeddings_index = {}
     with open(pretrained_embeddings_path) as f:
         for line in f:
@@ -43,7 +78,34 @@ def glove_embedding_layer(pretrained_embeddings_path, word_index, MAX_WORDS=2000
 
 def word2vec_embedding_layer(pretrained_embeddings_path, word_index, NUM_WORDS=20000,
                              EMBEDDING_DIM=300, pretrained_weights=True):
+    """
+    Returns a Keras Embedding layer, with pretrained word2vec embeddings.
+    which can be found here: 
+    https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit
 
+    Parameters:
+
+    pretrained_embeddings_path: str
+        path to pretrained gword2vec embeddings.
+
+    word_index: dict
+        an index of words from the dataset, returned by the keras_tokenizer.
+
+    MAX_WORDS: int
+        max number of words to be included in the processing.
+
+    EMBEDDING_DIM: int
+        dimension of the embedding layer.
+
+    pretrained_weights: bool
+        if `true` returns the layer with pretrainned embeddings, 
+        if `false` returns a layer without pretrained embeddings.
+
+    Returns: 
+
+        Keras `Embedding` layer object
+
+    """
     word_vectors = KeyedVectors.load_word2vec_format(
         pretrained_embeddings_path, binary=True)
     EMBEDDING_DIM = EMBEDDING_DIM

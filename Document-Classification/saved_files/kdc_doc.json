@@ -1,0 +1,1 @@
+{"text_path": "../../../citi/citi_rest/data/raw_data/", "text_labels": ["class_2", "class_3", "class_1"], "num_class": 3, "MAXLEN": 2000, "NUM_WORDS": 2000}

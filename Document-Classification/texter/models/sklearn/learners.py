@@ -8,6 +8,9 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn import cross_validation
 
+import warnings
+warnings.simplefilter("ignore")
+
 
 options = {'RF': RandomForestClassifier,
            'MNB': MultinomialNB,
@@ -21,6 +24,26 @@ options = {'RF': RandomForestClassifier,
 
 
 class classifier():
+    """
+    texter base classifier class, returns a sklearn.model object,
+    configure it with the hyperparams of the selected classifier
+
+    Parameters: 
+
+    name: str
+        classifier name, should be one of 
+        {'RF', 'MNB', 'GNB', 'SVC', 'MLP', 'AdaBoost', 'QDA', 'GPC', 'ET'}
+
+    config: dict/None
+        classifier hyperparameters dictionary
+
+    note: for full hyperparams list check the corresponding sklearn documentation.
+
+    Returns: 
+
+    sklearn model object
+
+    """
 
     def __init__(self, name, params=None):
         self.name = name

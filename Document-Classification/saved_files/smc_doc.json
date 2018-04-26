@@ -1,0 +1,1 @@
+{"name": "RF", "config": {"n_estimators": 50, "random_state": 123, "n_jobs": -1}}

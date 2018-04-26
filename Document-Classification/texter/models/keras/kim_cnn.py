@@ -1,10 +1,4 @@
 import numpy as np
-
-import gensim
-from gensim.models import Word2Vec
-from gensim.utils import simple_preprocess
-from gensim.models.keyedvectors import KeyedVectors
-
 from keras.layers import Embedding
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
@@ -18,6 +12,8 @@ from keras.models import Model
 from keras.layers import Input, Dense, Embedding, Conv2D, MaxPooling2D, Dropout, concatenate
 from keras.layers.core import Reshape, Flatten
 
+import warnings
+warnings.simplefilter("ignore")
 
 np.random.seed(15101993)
 
@@ -26,6 +22,61 @@ def kim_cnn(sequence_length, EMBEDDING_DIM, embedding_layer, n_class, lr=1e-3, b
             beta_2=0.999, epsilon=None, decay=0.0,
             drop=0.5, num_filters=100, filter_sizes=[3, 4, 5],
             loss='categorical_crossentropy', metrics=['acc']):
+    """
+    returns a compiled keras Kim CNN model, 
+    you can find more information about the model architecture here: https://arxiv.org/abs/1408.5882
+
+    Parameters:
+
+    sequence_length: int
+        length of the sentence/sequence
+
+    EMBEDDING_DIM: int
+        dimension of the embeddings
+
+    embedding_layer: keras object
+        keras embedding layer object, returned from embedding_utils module
+
+    n_class: int
+        number of classification categories
+
+    lr: float
+        learning rate
+
+    beta_1: float
+        0 < beta < 1. Generally close to 1.
+
+    beta_2: float 
+        0 < beta < 1. Generally close to 1.
+
+    epsilon: float 
+        epsilon >= 0Fuzz factor. If None, defaults to K.epsilon()
+
+    decay: float
+        decay >= 0. Learning rate decay over each update.
+
+    drop: float
+        dropout size
+
+    num_filters: int
+        number of filters to be used while reshaping the data
+
+    filter_sizes: list
+        (by default uses the original architecture values,
+        best left unchanged) size of a filter
+
+    loss: str
+        type of loss function to be used
+
+    metrics: list
+        types of evaluation metrics to be considered,
+        for the complete list of accepted values check keras documentation.
+
+    Returns: 
+
+        compiled keras model object
+
+    """
 
     inputs = Input(shape=(sequence_length,))
     embedding = embedding_layer(inputs)
@@ -47,7 +98,8 @@ def kim_cnn(sequence_length, EMBEDDING_DIM, embedding_layer, n_class, lr=1e-3, b
 
     merged_tensor = concatenate([maxpool_0, maxpool_1, maxpool_2], axis=1)
     flatten = Flatten()(merged_tensor)
-    reshape = Reshape((3*num_filters,))(flatten)  # 3: replace and try, a different number?
+    # 3: replace and try, a different number?
+    reshape = Reshape((3*num_filters,))(flatten)
     dropout = Dropout(drop)(flatten)
     output = Dense(units=n_class, activation='softmax',
                    kernel_regularizer=regularizers.l2(0.01))(dropout)
