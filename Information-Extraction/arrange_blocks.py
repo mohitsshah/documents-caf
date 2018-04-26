@@ -197,6 +197,7 @@ class Reader(object):
                     tmp.append(item[-1].rstrip().lstrip())
                 text = " ".join(tmp)
                 if len(text.rstrip().lstrip()) > 0:
+                    text = re.sub("\s{2,}", "  ", text)
                     tmp = text.split("  ")
                     new_tmp = []
                     for tt in tmp:
@@ -311,38 +312,39 @@ class Reader(object):
                 indices.append((m[0], m[1]))
         return passages
 
-    def search(self, phrase, blocks, key_values, texts, contexts=None, excludes=None):
+    def search(self, phrase, blocks, key_values, texts, include, exclude, pages_list):
         with_context = []
         without_context = []
+        if len(pages_list) == 0:
+            pages_list = range(len(texts))
         for p, text in enumerate(texts):
-            text = text.lower()
-            exclude_found = False
-            if excludes is not None:
-                for exclude in excludes:
-                    idx = text.find(exclude.lower())
-                    if idx > -1:
-                        exclude_found = True
-                        break
-            if exclude_found:
-                continue
+            if p in pages_list:
+                text = text.lower()
+                exclude_found = False
+                if len(exclude) > 0:
+                    for exc in exclude:
+                        idx = text.find(exc.lower())
+                        if idx > -1:
+                            exclude_found = True
+                            break
+                if exclude_found:
+                    continue
 
-            idx = text.find(phrase.lower())
-            if idx < 0:
-                continue
+                idx = text.find(phrase.lower())
+                if idx < 0:
+                    continue
 
-            context_found = False
-            if contexts is not None:
-                for context in contexts:
-                    idx = text.find(context.lower())
-                    if idx > -1:
-                        context_found = True
-                        break
-            if context_found:
-                with_context.append(p)
-            else:
+                if len(include) > 0:
+                    for inc in include:
+                        idx = text.find(inc.lower())
+                        if idx > -1:
+                            with_context.append(p)
+
                 without_context.append(p)
 
-        selected_pages = with_context if len(with_context) > 0 else without_context
+        with_context = list(set(with_context))
+        with_context.sort()
+        selected_pages = with_context + without_context
         kv_matches = self.get_passages_kv(phrase, key_values, selected_pages, window=0)
         block_matches = self.get_passages_blocks(phrase, blocks, selected_pages)
         return selected_pages, kv_matches, block_matches
@@ -376,7 +378,6 @@ class Reader(object):
             key_values.append(kv)
             page_text.append("\n".join(page_blocks))
             page_text.extend([" ".join(items) for items in kv])
-            print(page_text)
             page_text = "\n".join(page_text)
             texts.append(page_text)
         return blocks, key_values, texts

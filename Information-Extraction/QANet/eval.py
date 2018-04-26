@@ -1,8 +1,8 @@
 import json
 import numpy as np
 import tensorflow as tf
-from model import Model
-from prepro import convert_to_features, word_tokenize
+from QANet.model import Model
+from QANet.prepro import convert_to_features, word_tokenize
 
 
 class Eval(object):
