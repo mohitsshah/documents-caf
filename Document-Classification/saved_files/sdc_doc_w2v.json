@@ -1,1 +1,2 @@
-{"text_path": "../../../citi/citi_rest/data/raw_data/", "text_labels": ["class_1", "class_2", "class_3"], "processing_type": "word2vec", "w2v_path": "../../data/others/GoogleNews-vectors-negative300-SLIM.bin"}
+{"mappings_path": "legal_files.csv", "column": "Doc_Type", "root": "../texter_nb/data/legal", "processing_type": "word2vec", "w2v_path": "../../data/others/GoogleNews-vectors-negative300-SLIM.bin"}
+

@@ -24,18 +24,21 @@ __all__ = ['keras_data_config', 'keras_model_config',
 # TODO: remove pandas dependency
 
 
-def keras_data_config(text_path, text_labels,
+def keras_data_config(mappings_path, column, root,
                       num_class, MAXLEN=2000, NUM_WORDS=20000):
     """
     data handler utility function
 
     Parameters: 
 
-    text_path: str
-        path to documents directory
+    mappings_path: str
+        path to document_ID/file_name csv (legal/credits csv)
 
-    text_labels: list
-        list of labels to consider
+    column: str
+        "Doc_Type" or "Doc_Subtype", label-encoding parameter
+
+    root: str
+        root path directory
 
     num_class: int
         number of classes
@@ -68,7 +71,7 @@ def keras_data_config(text_path, text_labels,
 
     """
 
-    df = load_data(text_path, text_labels)
+    df = load_data(mappings_path, column, root)
     texts = [t for t in df.text]
     labels = [l for l in df.label]
     x_train, x_test, y_train, y_test = train_test_split_data(texts, labels)
@@ -212,7 +215,7 @@ def keras_model_config(pretrained_embeddings_path, word_index,
 # TODO: romove pandas dependency
 
 
-def sklearn_data_config(text_path, text_labels,
+def sklearn_data_config(mappings_path, column, root,
                         w2v_path=None, processing_type="tfidf", split_size=0.2,
                         encoding='utf-8', decode_error='strict', preprocessor=None, tokenizer=None, analyzer='word', stop_words=None, token_pattern='(?u)\\b\\w\\w+\\b', ngram_range=(1, 1), max_df=1.0, min_df=1, max_features=None, vocabulary=None,
                         binary=False, norm='l2', use_idf=True, smooth_idf=True, sublinear_tf=False, limit=200000, pos_filter=['ADJ', 'NOUN']):
@@ -227,11 +230,14 @@ def sklearn_data_config(text_path, text_labels,
 
     Parameters:
 
-    text_path: str
-       path to text documents
+    mappings_path: str
+        path to document_ID/file_name csv (legal/credits csv)
 
-    text_labels: numpy array/list
-        class labels of the text documents
+    column: str
+        "Doc_Type" or "Doc_Subtype", label-encoding parameter
+
+    root: str
+        root path directory
 
     w2v_path: str/None
         path to pretrained word embeddings
@@ -360,7 +366,7 @@ def sklearn_data_config(text_path, text_labels,
             text vectorization model
     """
 
-    data = load_data(text_path, text_labels)
+    data = load_data(mappings_path, column, root)
 
     if processing_type == "tfidf":
         train_data, test_data, \

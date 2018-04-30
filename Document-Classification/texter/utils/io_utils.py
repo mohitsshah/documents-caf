@@ -12,6 +12,7 @@ from keras.models import model_from_json
 from sklearn.externals import joblib
 from nltk.corpus import stopwords
 
+from .externals import data_loader
 
 __all__ = ['load_config', 'save_config', 'load_model',
            'save_model', 'load_text_model', 'save_text_model']
@@ -19,46 +20,72 @@ __all__ = ['load_config', 'save_config', 'load_model',
 # TODO: remove pandas dependency
 
 
-def load_data(text_directory_path, class_labels, remove_pattern="[^a-zA-Z]"):
+def load_data(mappings_path, column, root):
     """
-    loads the data as a dataframe containing the labels and text associated with it
 
-    Parameters:
+    Dataset loader utility
+    NOTE: Will be depricated in the next version
 
-    text_directory_path: str
-        path to directory containing the text files
+    Parameters: 
 
-    class_labels: list
-        list of labels
+    mappings_path: str
+        path to document_ID/file_name csv
 
-    remove_pattern: str
-        regex pattern to remove unwanted chars from the text
+    column: str
+        "Doc_Type" or "Doc_Subtype", label-encoding parameter
 
-    Returns:
-        Dataframe
+    root: str
+        root path directory
+
+    Returns: pandas dataframe
 
     """
-    excludes = stopwords.words("english")
-    pattern = re.compile(remove_pattern)
-    texts = []
-    labels = []
-    textdir = text_directory_path
-    categories = class_labels
-    for i, category in enumerate(categories):
-        path = os.path.join(textdir, category)
-        files = os.listdir(path)
-        for f in files:
-            p = os.path.join(path, f)
-            content = open(p, 'r').read()
-            content = pattern.sub(" ", content)
-            words = content.split()
-            words = [w for w in words if len(w) > 1]
-            words = [w for w in words if w not in excludes]
-            if len(words) > 0:
-                lines = ' '.join(words)
-                texts.append(lines)
-                labels.append(i)
+    texts, labels = data_loader(mappings_path, column, root)
     return pd.DataFrame(dict(text=texts, label=labels))
+
+
+# """
+# def load_data(text_directory_path, class_labels, remove_pattern="[^a-zA-Z]"):
+#    """
+#    loads the data as a dataframe containing the labels and text associated with it
+#
+#    Parameters:
+#
+#    text_directory_path: str
+#        path to directory containing the text files
+#
+#    class_labels: list
+#        list of labels
+#
+#    remove_pattern: str
+#        regex pattern to remove unwanted chars from the text
+#
+#    Returns:
+#        Dataframe
+#
+#    """
+#    excludes = stopwords.words("english")
+#    pattern = re.compile(remove_pattern)
+#    texts = []
+#    labels = []
+#    textdir = text_directory_path
+#    categories = class_labels
+#    for i, category in enumerate(categories):
+#        path = os.path.join(textdir, category)
+#        files = os.listdir(path)
+#        for f in files:
+#            p = os.path.join(path, f)
+#            content = open(p, 'r').read()
+#            content = pattern.sub(" ", content)
+#            words = content.split()
+#            words = [w for w in words if len(w) > 1]
+#            words = [w for w in words if w not in excludes]
+#            if len(words) > 0:
+#                lines = ' '.join(words)
+#                texts.append(lines)
+#                labels.append(i)
+#    return pd.DataFrame(dict(text=texts, label=labels))
+# """
 
 
 def load_config(filepath):
