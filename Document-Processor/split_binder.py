@@ -31,8 +31,8 @@ def get_lines(words):
         line = [[l[0], y0, l[2], y1, l[4]] for l in line]
         line = sorted(line, key=lambda x: (x[1], x[0]))
         text_line = " ".join([l[-1] for l in line])
-        texts.append(text_line)
-
+        l = [line[0][0], line[0][1], line[-1][2], line[-1][3], text_line]
+        texts.append(l)
     return texts
 
 

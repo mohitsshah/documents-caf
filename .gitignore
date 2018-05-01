@@ -1,5 +1,4 @@
 .idea
-*.json
 *.png
 *.pdf
 *.pyc
@@ -10,3 +9,4 @@
 *.txt
 *.html
 *.bin
+*.pkl
