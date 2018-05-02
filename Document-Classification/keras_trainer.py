@@ -43,9 +43,9 @@ if __name__ == '__main__':
         f"\nRunning model with\nBatch Size: {bs}\nepochs: {e}\nverbose: {v}\n")
     data_config = load_config(data_config)
     model_config = load_config(model_config)
-    x_train, x_test, y_train, y_test, tokenizer, word_index = kdc(
+    x_train, x_test, y_train, y_test, tokenizer, word_index, num_class = kdc(
         **data_config)
-    model = kmc(**model_config)
+    model = kmc(**model_config, num_class=num_class)
     print(f"\n{c.Fore.RED}Classification Model summary:\n")
     print(f"\n\n{c.Fore.CYAN}{model.summary()}")
     model.fit(x_train, y_train, batch_size=bs, epochs=e, verbose=v,

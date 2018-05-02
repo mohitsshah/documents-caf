@@ -12,7 +12,7 @@ from keras.models import model_from_json
 from sklearn.externals import joblib
 from nltk.corpus import stopwords
 
-from .externals import data_loader
+from .externals import data_loader, return_df
 
 __all__ = ['load_config', 'save_config', 'load_model',
            'save_model', 'load_text_model', 'save_text_model']
@@ -20,7 +20,7 @@ __all__ = ['load_config', 'save_config', 'load_model',
 # TODO: remove pandas dependency
 
 
-def load_data(mappings_path, column, root):
+def load_data(mappings_path, column, root, category_threshold=100):
     """
 
     Dataset loader utility
@@ -41,7 +41,10 @@ def load_data(mappings_path, column, root):
 
     """
     texts, labels = data_loader(mappings_path, column, root)
-    return pd.DataFrame(dict(text=texts, label=labels))
+    df = pd.DataFrame(dict(text=texts, label=labels))
+    df.text = df.text.replace('', np.nan)
+    df = df.dropna().reset_index()
+    return return_df(df, column, category_threshold)
 
 
 # """

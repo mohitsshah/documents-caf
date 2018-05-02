@@ -23,13 +23,13 @@ from keras.utils import to_categorical
 
 import unicodedata
 from ftfy import fix_text
-from unidecode import unidecode
 
 import warnings
 warnings.simplefilter("ignore")
 
 __all__ = ['accent_cleaner', 'whitespace_normalizer', 'replace_numbers',
            'fix_bad_unicode', 'train_test_split_data', 'vectorizer',  'vectorized_data',  'sklearn_text_vectorizer', 'sklearn_text_vectorizer', 'pos_tagger', 'document_pos_tagger', 'word2vec', 'keras_text_tokenizer']
+
 
 def accent_cleaner(text, mode='unicode'):
     """

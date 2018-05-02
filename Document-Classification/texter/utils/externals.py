@@ -13,7 +13,7 @@ def doc_id_data(DF):
 
 def get_doc_id(category, column, df):
     """internal utility function"""
-    return [x for x in df.query(f"{column}=='{category}'")["Doc_Id"]]
+    return [x for x in df.query(f"{column}=='{category}'")["Documentum_Id"]]
 
 
 def read_text(ID, root, remove_pattern="[^a-zA-Z]"):
@@ -93,3 +93,10 @@ def data_loader(df, column, path):
 #    texts=[read_text(path)for path in df.path]
 #    labels = [label for label in df[category_type]]
 #    return pd.DataFrame(dict(text=texts, label=labels))
+
+def return_df(df, column, category_threshold=100):
+    df_dict = df[column].value_counts().to_dict()
+    _df_dict = dict((k, v)
+                    for k, v in df_dict.items() if v >= category_threshold)
+    categories = [k for k in _df_dict.keys()]
+    return df[df['Doc_Type'].isin(categories)]

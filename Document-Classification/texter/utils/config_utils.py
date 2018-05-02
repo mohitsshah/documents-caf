@@ -24,8 +24,7 @@ __all__ = ['keras_data_config', 'keras_model_config',
 # TODO: remove pandas dependency
 
 
-def keras_data_config(mappings_path, column, root,
-                      num_class, MAXLEN=2000, NUM_WORDS=20000):
+def keras_data_config(mappings_path, column, root, MAXLEN=2000, NUM_WORDS=20000, category_threshold=100):
     """
     data handler utility function
 
@@ -40,14 +39,14 @@ def keras_data_config(mappings_path, column, root,
     root: str
         root path directory
 
-    num_class: int
-        number of classes
-
     MAXLEN: int
         maximum length of the sequence to be used by keras tokenizer
 
     NUM_WORDS: int
         maximum number of words to be used by keras tokenizer
+
+    category_threshold: int
+        minimum number of samples necessary for a label
 
     Returns: 
 
@@ -71,9 +70,11 @@ def keras_data_config(mappings_path, column, root,
 
     """
 
-    df = load_data(mappings_path, column, root)
+    df = load_data(mappings_path, column, root,
+                   category_threshold=category_threshold)
     texts = [t for t in df.text]
     labels = [l for l in df.label]
+    num_class = len(set(x for x in labels))
     x_train, x_test, y_train, y_test = train_test_split_data(texts, labels)
     X_train, X_val, Y_train, Y_val, tokenizer, word_index = keras_text_tokenizer(x_train, x_test,
                                                                                  y_train, y_test,
@@ -215,7 +216,7 @@ def keras_model_config(pretrained_embeddings_path, word_index,
 # TODO: romove pandas dependency
 
 
-def sklearn_data_config(mappings_path, column, root,
+def sklearn_data_config(mappings_path, column, root, category_threshold=100,
                         w2v_path=None, processing_type="tfidf", split_size=0.2,
                         encoding='utf-8', decode_error='strict', preprocessor=None, tokenizer=None, analyzer='word', stop_words=None, token_pattern='(?u)\\b\\w\\w+\\b', ngram_range=(1, 1), max_df=1.0, min_df=1, max_features=None, vocabulary=None,
                         binary=False, norm='l2', use_idf=True, smooth_idf=True, sublinear_tf=False, limit=200000, pos_filter=['ADJ', 'NOUN']):
@@ -238,6 +239,9 @@ def sklearn_data_config(mappings_path, column, root,
 
     root: str
         root path directory
+
+    category_threshold: int
+        minimum number of samples necessary for a label
 
     w2v_path: str/None
         path to pretrained word embeddings
@@ -366,7 +370,8 @@ def sklearn_data_config(mappings_path, column, root,
             text vectorization model
     """
 
-    data = load_data(mappings_path, column, root)
+    data = load_data(mappings_path, column, root,
+                     category_threshold=category_threshold)
 
     if processing_type == "tfidf":
         train_data, test_data, \
