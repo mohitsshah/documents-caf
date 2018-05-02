@@ -68,9 +68,6 @@ class Eval(object):
             yp1, yp2, lg1, lg2 = sess.run([model.yp1, model.yp2, model.lg1, model.lg2], feed_dict=fd)
             start_idx = yp1[0]
             stop_idx = yp2[0]
-            print (yp2[0])
-            print (lg1[0])
-            print (lg2[0])
             yp2[0] += 1
             response = " ".join(context[yp1[0]:yp2[0]])
             return response

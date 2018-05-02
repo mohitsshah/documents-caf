@@ -12,11 +12,13 @@ import spacy
 
 
 class Extractor(object):
-    def __init__(self, defs_path):
+    def __init__(self):
         self.content = None
-        self.defs = compile_defs.run(defs_path)
         self.nlp = spacy.load("en_core_web_sm")
-        # self.qa_module = eval.Eval("config.json")
+        self.qa_module = eval.Eval("config.json")
+
+    def set_defs(self, defs_path):
+        self.defs = compile_defs.run(defs_path)
 
     def set_content(self, data):
         self.content = data
@@ -41,6 +43,34 @@ class Extractor(object):
             if m[1] not in indices:
                 passages.append([m[0], key_values[m[0]]])
                 indices.append(m[1])
+        return passages
+
+    def search_phrase_blocks(self, phrase, blocks):
+        match = []
+        for bidx, block in enumerate(blocks):
+            tmp = [m.start() for m in re.finditer(phrase.lower(), block.lower())]
+            for t in tmp:
+                match.append((bidx, t))
+        return match
+
+    def get_passages_blocks(self, phrase, blocks, window=2):
+        match = self.search_phrase_blocks(phrase, blocks)
+        passages = []
+        indices = []
+        for m in match:
+            if m[0] not in indices:
+                L = len(blocks)
+                texts = []
+                for j in range(1, window + 1):
+                    if m[0] - j >= 0:
+                        texts.append(blocks[m[0] - j])
+                texts.reverse()
+                texts.append(blocks[m[0]])
+                for j in range(1, window + 1):
+                    if m[0] + j < L:
+                        texts.append(blocks[m[0] + j])
+                passages.append([m[0], "\n".join(texts)])
+                indices.append(m[0])
         return passages
 
     def search_terms(self, terms, include, exclude, pages_list):
@@ -85,27 +115,52 @@ class Extractor(object):
         for pat in patterns:
             res = re.search(pat, value)
             if res is not None:
-                return value, "regex"
+                return value, "search", "regex"
 
         if len(entities) == 0:
-            return value, "text"
+            return value, "search", "text"
 
         doc = nlp(value)
         for ent in doc.ents:
             if ent.label_ in entities:
                 answer = ent.text
-                return answer, "entity"
+                return answer, "search", "entity"
+        return None
+
+    def extract_from_block(self, question, text, patterns, entities):
+        qa_module = self.qa_module
+        print (question, text)
+        value = qa_module.extract(question, text)
+        print (value)
+        nlp = self.nlp
+        for pat in patterns:
+            res = re.search(pat, value)
+            if res is not None:
+                return value, "qa", "regex"
+
+        if len(entities) == 0:
+            return value, "qa", "text"
+
+        doc = nlp(value)
+        for ent in doc.ents:
+            if ent.label_ in entities:
+                answer = ent.text
+                return answer, "qa", "entity"
         return None
 
     def extract(self):
         defs = self.defs
+        if defs is None:
+            return None
         content = self.content
-        df = pd.DataFrame(columns=["Name", "Value", "Page", "Method"])
+        df = pd.DataFrame(columns=["Name", "Value", "Type", "Method", "Source", "Page"])
         for item in defs:
             name = item["name"]
             ans = None
-            ans_method = None
+            ans_type = None
             ans_page = None
+            ans_source = None
+            ans_method = None
             method = item["method"]
             pages_list = []
             if "pages" in item and item["pages"] is not None:
@@ -118,6 +173,7 @@ class Extractor(object):
                 terms = item["search"]["terms"]
                 include = item["search"]["include"]
                 exclude = item["search"]["exclude"]
+                question = item["search"]["question"]
                 entities = item["types"]["entities"]
                 patterns = item["types"]["patterns"]
                 c_patterns = [re.compile(p) for p in patterns]
@@ -133,8 +189,21 @@ class Extractor(object):
                             ret = self.extract_from_kv(key, value, c_patterns, entities)
                             if ret is not None:
                                 match_found = True
-                                ans, ans_method = ret
+                                ans, ans_method, ans_type = ret
+                                ans_source = " ".join(item)
                                 ans_page = m[0]
+                                break
+                        if match_found:
+                            break
+                        block_matches = self.get_passages_blocks(m[2], content["blocks"][m[0]])
+                        for block_match in block_matches:
+                            value = block_match[1]
+                            ret = self.extract_from_block(question, value, c_patterns, entities)
+                            if ret is not None:
+                                match_found = True
+                                ans, ans_method, ans_type = ret
+                                ans_page = m[0]
+                                ans_source = value
                                 break
                         if match_found:
                             break
@@ -147,10 +216,12 @@ class Extractor(object):
                 if len(matches) > 0:
                     ans = item["values"][0]
                     ans_page = matches[0][0]
+                    ans_type = "text"
                 else:
                     ans = item["values"][1]
                 ans_method = "lookup"
-            df = df.append({"Name": name, "Value": ans, "Page": ans_page, "Method": ans_method}, ignore_index=True)
+            df = df.append({"Name": name, "Value": ans, "Type": ans_type, "Method": ans_method, "Source": ans_source,
+                            "Page": ans_page}, ignore_index=True)
         return df
 
 
