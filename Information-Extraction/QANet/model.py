@@ -172,7 +172,7 @@ class Model(object):
 
             outer = tf.matmul(tf.expand_dims(tf.nn.softmax(logits1), axis=2),
                               tf.expand_dims(tf.nn.softmax(logits2), axis=1))
-            outer = tf.matrix_band_part(outer, 0, 15)
+            outer = tf.matrix_band_part(outer, 0, 5)
             self.lg1 = logits1
             self.lg2 = logits2
             self.yp1 = tf.argmax(tf.reduce_max(outer, axis=2), axis=1)

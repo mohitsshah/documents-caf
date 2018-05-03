@@ -26,17 +26,36 @@ class Extractor(object):
     def reset_content(self):
         self.content = None
 
-    def search_phrase_kv(self, phrase, key_values):
+    def search_phrase_keys(self, phrase, key_values):
         match = []
         for bidx, block in enumerate(key_values):
-            tt = " ".join(block)
+            tt = block[0]
             tmp = [m.start() for m in re.finditer(phrase.lower(), tt.lower())]
             for t in tmp:
                 match.append((bidx, t))
         return match
 
-    def get_passages_kv(self, phrase, key_values):
-        match = self.search_phrase_kv(phrase, key_values)
+    def get_passages_keys(self, phrase, key_values):
+        match = self.search_phrase_keys(phrase, key_values)
+        passages = []
+        indices = []
+        for m in match:
+            if m[1] not in indices:
+                passages.append([m[0], key_values[m[0]]])
+                indices.append(m[1])
+        return passages
+
+    def search_phrase_values(self, phrase, key_values):
+        match = []
+        for bidx, block in enumerate(key_values):
+            tt = block[1]
+            tmp = [m.start() for m in re.finditer(phrase.lower(), tt.lower())]
+            for t in tmp:
+                match.append((bidx, t))
+        return match
+
+    def get_passages_values(self, phrase, key_values):
+        match = self.search_phrase_values(phrase, key_values)
         passages = []
         indices = []
         for m in match:
@@ -110,118 +129,150 @@ class Extractor(object):
                             matches.append([p, 0, term])
         return matches
 
-    def extract_from_kv(self, key, value, patterns, entities):
-        nlp = self.nlp
+    def extract_from_value(self, value, text_extract, expects):
+        ans = str(value)
+        if text_extract is not None:
+            if text_extract["type"] == "SHORT":
+                if text_extract["method"] == "QA":
+                    question = text_extract["question"]
+                    try:
+                        ans = self.qa_module.extract(question, value)
+                    except Exception as e:
+                        pass
+        if expects is None:
+            return ans, "search", "text"
+        patterns = expects["patterns"]
         for pat in patterns:
-            res = re.search(pat, value)
+            res = re.search(re.compile(pat), ans)
             if res is not None:
-                return value, "search", "regex"
+                return ans, "search", "regex"
 
-        if len(entities) == 0:
-            return value, "search", "text"
-
-        doc = nlp(value)
+        entities = expects["entities"]
+        nlp = self.nlp
+        doc = nlp(ans)
         for ent in doc.ents:
             if ent.label_ in entities:
-                answer = ent.text
-                return answer, "search", "entity"
+                return ans, "search", "entity"
         return None
 
-    def extract_from_block(self, question, text, patterns, entities):
-        qa_module = self.qa_module
-        print (question, text)
-        value = qa_module.extract(question, text)
-        print (value)
-        nlp = self.nlp
-        for pat in patterns:
-            res = re.search(pat, value)
-            if res is not None:
-                return value, "qa", "regex"
+    def _extract_item(self, item):
+        content = self.content
+        name = item["name"]
+        method = item["method"]
+        pages_list = []
+        if "pages" in item and item["pages"] is not None:
+            tmp = item["pages"].split("-")
+            if len(tmp) == 1:
+                pages_list = [int(tmp[0])]
+            elif len(tmp) == 2:
+                pages_list = range(int(tmp[0]), int(tmp[1]))
+        if method == "extract":
+            terms = item["search"]["terms"]
+            include = item["search"]["include"]
+            exclude = item["search"]["exclude"]
+            regions = item["search"]["regions"]
+            expects = item["expects"] if "expects" in item else None
+            text_extract = item["text_extract"] if "text_extract" in item else None
+            # c_patterns = [re.compile(p) for p in patterns]
+            matches = self.search_terms(terms, include, exclude, pages_list)
+            if len(matches) > 0:
+                matches = sorted(matches, key=lambda x: (-x[1], x[0], -len(x[2])))
+                if "keys" in regions:
+                    for m in matches:
+                        key_matches = self.get_passages_keys(m[2], content["kv"][m[0]])
+                        for key_match in key_matches:
+                            item = key_match[1]
+                            key, value = item
+                            ret = self.extract_from_value(value, text_extract, expects)
+                            if ret is not None:
+                                ans, ans_method, ans_type = ret
+                                res = {
+                                    "Name": name,
+                                    "Value": ans,
+                                    "Type": ans_type,
+                                    "Method": ans_method,
+                                    "Source": " ".join([key, value]),
+                                    "Region": "key",
+                                    "Page": m[0]
+                                }
+                                return res
+                if "values" in regions:
+                    for m in matches:
+                        value_matches = self.get_passages_values(m[2], content["kv"][m[0]])
+                        for value_match in value_matches:
+                            item = value_match[1]
+                            key, value = item
+                            ret = self.extract_from_value(value, text_extract, expects)
+                            if ret is not None:
+                                ans, ans_method, ans_type = ret
+                                res = {
+                                    "Name": name,
+                                    "Value": ans,
+                                    "Type": ans_type,
+                                    "Method": ans_method,
+                                    "Source": " ".join([key, value]),
+                                    "Region": "value",
+                                    "Page": m[0]
+                                }
+                                return res
+                if "paragraphs" in regions:
+                    for m in matches:
+                        block_matches = self.get_passages_blocks(m[2], content["blocks"][m[0]])
+                        for block_match in block_matches:
+                            value = block_match[1]
+                            ret = self.extract_from_value(value, text_extract, expects)
+                            if ret is not None:
+                                ans, ans_method, ans_type = ret
+                                res = {
+                                    "Name": name,
+                                    "Value": ans,
+                                    "Type": ans_type,
+                                    "Method": ans_method,
+                                    "Source": value,
+                                    "Region": "paragraph",
+                                    "Page": m[0]
+                                }
+                                return res
+            return {
+                "Name": name,
+                "Value": None,
+                "Type": None,
+                "Method": None,
+                "Source": None,
+                "Region": None,
+                "Page": None
+            }
 
-        if len(entities) == 0:
-            return value, "qa", "text"
-
-        doc = nlp(value)
-        for ent in doc.ents:
-            if ent.label_ in entities:
-                answer = ent.text
-                return answer, "qa", "entity"
-        return None
+        elif method == "lookup":
+            ans_page = None
+            terms = item["search"]["terms"]
+            include = item["search"]["include"]
+            exclude = item["search"]["exclude"]
+            matches = self.search_terms(terms, include, exclude, pages_list)
+            if len(matches) > 0:
+                ans = item["values"][0]
+                ans_page = matches[0][0]
+            else:
+                ans = item["values"][1]
+            res = {
+                "Name": name,
+                "Value": ans,
+                "Type": None,
+                "Method": "lookup",
+                "Source": None,
+                "Region": None,
+                "Page": ans_page
+            }
+            return res
 
     def extract(self):
         defs = self.defs
         if defs is None:
             return None
-        content = self.content
-        df = pd.DataFrame(columns=["Name", "Value", "Type", "Method", "Source", "Page"])
+        df = pd.DataFrame(columns=["Name", "Value", "Type", "Method", "Region", "Source", "Page"])
         for item in defs:
-            name = item["name"]
-            ans = None
-            ans_type = None
-            ans_page = None
-            ans_source = None
-            ans_method = None
-            method = item["method"]
-            pages_list = []
-            if "pages" in item and item["pages"] is not None:
-                tmp = item["pages"].split("-")
-                if len(tmp) == 1:
-                    pages_list = [int(tmp[0])]
-                elif len(tmp) == 2:
-                    pages_list = range(int(tmp[0]), int(tmp[1]))
-            if method == "extract":
-                terms = item["search"]["terms"]
-                include = item["search"]["include"]
-                exclude = item["search"]["exclude"]
-                question = item["search"]["question"]
-                entities = item["types"]["entities"]
-                patterns = item["types"]["patterns"]
-                c_patterns = [re.compile(p) for p in patterns]
-                matches = self.search_terms(terms, include, exclude, pages_list)
-                if len(matches) > 0:
-                    match_found = False
-                    matches = sorted(matches, key=lambda x: (x[0], x[1], -len(x[2])))
-                    for m in matches:
-                        kv_matches = self.get_passages_kv(m[2], content["kv"][m[0]])
-                        for kv_match in kv_matches:
-                            item = kv_match[1]
-                            key, value = item
-                            ret = self.extract_from_kv(key, value, c_patterns, entities)
-                            if ret is not None:
-                                match_found = True
-                                ans, ans_method, ans_type = ret
-                                ans_source = " ".join(item)
-                                ans_page = m[0]
-                                break
-                        if match_found:
-                            break
-                        block_matches = self.get_passages_blocks(m[2], content["blocks"][m[0]])
-                        for block_match in block_matches:
-                            value = block_match[1]
-                            ret = self.extract_from_block(question, value, c_patterns, entities)
-                            if ret is not None:
-                                match_found = True
-                                ans, ans_method, ans_type = ret
-                                ans_page = m[0]
-                                ans_source = value
-                                break
-                        if match_found:
-                            break
-
-            elif method == "lookup":
-                terms = item["search"]["terms"]
-                include = item["search"]["include"]
-                exclude = item["search"]["exclude"]
-                matches = self.search_terms(terms, include, exclude, pages_list)
-                if len(matches) > 0:
-                    ans = item["values"][0]
-                    ans_page = matches[0][0]
-                    ans_type = "text"
-                else:
-                    ans = item["values"][1]
-                ans_method = "lookup"
-            df = df.append({"Name": name, "Value": ans, "Type": ans_type, "Method": ans_method, "Source": ans_source,
-                            "Page": ans_page}, ignore_index=True)
+            r = self._extract_item(item)
+            df = df.append(r, ignore_index=True)
         return df
 
 
@@ -230,9 +281,3 @@ if __name__ == '__main__':
     flags.add_argument("-src", type=str, required=True, help="Source file path")
     args = flags.parse_args()
     params = vars(args)
-    # try:
-    #     with open(params["src"], "rb") as fi:
-    #         data = pickle.load(fi)
-    #         s = Search(data["blocks"], data["kv"], data["text"])
-    # except Exception as e:
-    #     print(str(e))
