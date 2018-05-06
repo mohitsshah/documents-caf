@@ -27,10 +27,11 @@ class Extractor(object):
         self.content = None
 
     def search_phrase_keys(self, phrase, key_values):
+        pattern = re.compile("\\b%s\\b" % phrase.lower(), flags=re.IGNORECASE)
         match = []
         for bidx, block in enumerate(key_values):
             tt = block[0]
-            tmp = [m.start() for m in re.finditer(phrase.lower(), tt.lower())]
+            tmp = [m.start() for m in re.finditer(pattern, tt.lower())]
             for t in tmp:
                 match.append((bidx, t))
         return match
@@ -46,10 +47,11 @@ class Extractor(object):
         return passages
 
     def search_phrase_values(self, phrase, key_values):
+        pattern = re.compile("\\b%s\\b" % phrase.lower(), flags=re.IGNORECASE)
         match = []
         for bidx, block in enumerate(key_values):
             tt = block[1]
-            tmp = [m.start() for m in re.finditer(phrase.lower(), tt.lower())]
+            tmp = [m.start() for m in re.finditer(pattern, tt.lower())]
             for t in tmp:
                 match.append((bidx, t))
         return match
@@ -65,9 +67,10 @@ class Extractor(object):
         return passages
 
     def search_phrase_blocks(self, phrase, blocks):
+        pattern = re.compile("\\b%s\\b" % phrase.lower(), flags=re.IGNORECASE)
         match = []
         for bidx, block in enumerate(blocks):
-            tmp = [m.start() for m in re.finditer(phrase.lower(), block.lower())]
+            tmp = [m.start() for m in re.finditer(pattern, block.lower())]
             for t in tmp:
                 match.append((bidx, t))
         return match
@@ -98,14 +101,16 @@ class Extractor(object):
         matches = []
         if len(pages_list) == 0:
             pages_list = range(len(texts))
-        for p, text in enumerate(texts):
-            if p in pages_list:
+        for page_num, text in enumerate(texts):
+            if page_num in pages_list:
                 text = text.lower()
                 exclude_found = False
                 if len(exclude) > 0:
                     for exc in exclude:
-                        idx = text.find(exc.lower())
-                        if idx > -1:
+                        pattern = "\\b%s\\b" % exc.lower()
+                        p = re.compile(pattern, flags=re.IGNORECASE)
+                        m = re.findall(p, text)
+                        if len(m) > 0:
                             exclude_found = True
                             break
                 if exclude_found:
@@ -113,20 +118,24 @@ class Extractor(object):
 
                 for term in terms:
                     context_found = False
-                    idx = text.find(term.lower())
-                    if idx < 0:
+                    pattern = "\\b%s\\b" % term.lower()
+                    p = re.compile(pattern, flags=re.IGNORECASE)
+                    m = re.findall(p, text)
+                    if len(m) < 1:
                         pass
                     else:
                         if len(include) > 0:
                             for inc in include:
-                                idx = text.find(inc.lower())
-                                if idx > -1:
+                                pattern = "\\b%s\\b" % inc.lower()
+                                p = re.compile(pattern, flags=re.IGNORECASE)
+                                mm = re.findall(p, text)
+                                if len(mm) > 0:
                                     matches.append([p, 1, term])
                                     context_found = True
                             if not context_found:
-                                matches.append([p, 0, term])
+                                matches.append([page_num, 0, term])
                         else:
-                            matches.append([p, 0, term])
+                            matches.append([page_num, 0, term])
         return matches
 
     def extract_from_value(self, value, text_extract, expects):
@@ -173,7 +182,6 @@ class Extractor(object):
             regions = item["search"]["regions"]
             expects = item["expects"] if "expects" in item else None
             text_extract = item["text_extract"] if "text_extract" in item else None
-            # c_patterns = [re.compile(p) for p in patterns]
             matches = self.search_terms(terms, include, exclude, pages_list)
             if len(matches) > 0:
                 matches = sorted(matches, key=lambda x: (-x[1], x[0], -len(x[2])))
