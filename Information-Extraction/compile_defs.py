@@ -2,15 +2,13 @@ import json
 import os
 
 
-def run(defs_dir):
-    if not os.path.exists(defs_dir):
+def run(defs_file):
+    if not os.path.exists(defs_file):
         raise Exception("Definitions directory does not exist.")
-    files = os.listdir(defs_dir)
-    d_files = [f for f in files if f.endswith(".json")]
-    if len(d_files) == 0:
-        raise Exception("No JSON files found.")
-    defs = []
-    for f in d_files:
-        data = json.load(open(os.path.join(defs_dir, f), "r"))
-        defs.append(data)
+    defs = json.load(open(defs_file, "r"))["definitions"]
+    defs = [d for d in defs if d["enabled"]]
     return defs
+
+if __name__ == "__main__":
+    d = run("./defs.json")
+    print (d)

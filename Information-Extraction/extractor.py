@@ -41,9 +41,9 @@ class Extractor(object):
         passages = []
         indices = []
         for m in match:
-            if m[1] not in indices:
+            if m[0] not in indices:
                 passages.append([m[0], key_values[m[0]]])
-                indices.append(m[1])
+                indices.append(m[0])
         return passages
 
     def search_phrase_values(self, phrase, key_values):
@@ -97,7 +97,7 @@ class Extractor(object):
 
     def search_terms(self, terms, include, exclude, pages_list):
         content = self.content
-        texts = content["text"]
+        texts = content["texts"]
         matches = []
         if len(pages_list) == 0:
             pages_list = range(len(texts))
@@ -130,7 +130,7 @@ class Extractor(object):
                                 p = re.compile(pattern, flags=re.IGNORECASE)
                                 mm = re.findall(p, text)
                                 if len(mm) > 0:
-                                    matches.append([p, 1, term])
+                                    matches.append([page_num, 1, term])
                                     context_found = True
                             if not context_found:
                                 matches.append([page_num, 0, term])
@@ -164,10 +164,20 @@ class Extractor(object):
                 return ans, "search", "entity"
         return None
 
+    def find_regex_pattern(self, patterns):
+        texts = self.content["texts"]
+        for patt in patterns:
+            pp = re.compile(patt)
+            for p_num, text in enumerate(texts):
+                m = re.findall(pp, text)
+                if len(m) > 0:
+                    return p_num, m[0]
+        return None
+
     def _extract_item(self, item):
         content = self.content
         name = item["name"]
-        method = item["method"]
+        method = item["type"]
         pages_list = []
         if "pages" in item and item["pages"] is not None:
             tmp = item["pages"].split("-")
@@ -175,7 +185,7 @@ class Extractor(object):
                 pages_list = [int(tmp[0])]
             elif len(tmp) == 2:
                 pages_list = range(int(tmp[0]), int(tmp[1]))
-        if method == "extract":
+        if method == "search":
             terms = item["search"]["terms"]
             include = item["search"]["include"]
             exclude = item["search"]["exclude"]
@@ -267,6 +277,25 @@ class Extractor(object):
                 "Value": ans,
                 "Type": None,
                 "Method": "lookup",
+                "Source": None,
+                "Region": None,
+                "Page": ans_page
+            }
+            return res
+        elif method == "regex":
+            ans_page = None
+            patterns = item["patterns"]
+            ret = self.find_regex_pattern(patterns)
+            if ret is not None:
+                ans_page = ret[0]
+                ans = ret[1]
+            else:
+                ans = None
+            res = {
+                "Name": name,
+                "Value": ans,
+                "Type": None,
+                "Method": "regex",
                 "Source": None,
                 "Region": None,
                 "Page": ans_page
