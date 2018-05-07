@@ -1,0 +1,1933 @@
+{
+  "definitions": [
+    {
+      "name": "Report Format",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "lookup",
+      "pages": "0",
+      "search": {
+        "terms": [
+          "restricted appraisal",
+          "restricted"
+        ],
+        "include": [],
+        "exclude": []
+      },
+      "values": [
+        "Restricted Appraisal Report",
+        "Appraisal Report"
+      ]
+    },
+    {
+      "name": "Date of Report",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "date of report",
+          "report date"
+        ],
+        "include": [
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [
+          "\\d{2}\/\\d{2}\/d{2,4}"
+        ],
+        "entities": [
+          "DATE",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "Date of Inspection",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "date of inspection",
+          "inspection date"
+        ],
+        "include": [
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [
+          "\\d{2}\/\\d{2}\/d{2,4}"
+        ],
+        "entities": [
+          "DATE",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "File Reference #",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "File Number",
+          "Internal File Number",
+          "File ID",
+          "File No"
+        ],
+        "include": [
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [
+          "\\b([A-Z0-9]{3,})\\b"
+        ],
+        "entities": []
+      }
+    },
+    {
+      "name": "Asset #",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "regex",
+      "pages": "0-10",
+      "patterns": [
+        "(?:[a-zA-Z]*/[a-zA-Z]*/[a-zA-z]*)[-:\\s]+([A-Z0-9]*)[\\s]*/[\\s]*(?:[A-Z0-9]*)[\\s]*/[\\s]*(?:[A-Z0-9]*)"
+      ]
+    },
+    {
+      "name": "Work Request #",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "regex",
+      "pages": "0-10",
+      "patterns": [
+        "(?:[a-zA-Z]*/[a-zA-Z]*/[a-zA-z]*)[-:\\s]+(?:[A-Z0-9]*)[\\s]*/[\\s]*([A-Z0-9]*)[\\s]*/[\\s]*(?:[A-Z0-9]*)"
+      ]
+    },
+    {
+      "name": "Tracking #",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "regex",
+      "pages": "0-10",
+      "patterns": [
+        "(?:[a-zA-Z]*/[a-zA-Z]*/[a-zA-z]*)[-:\\s]+(?:[A-Z0-9]*)[\\s]*/[\\s]*(?:[A-Z0-9]*)[\\s]*/[\\s]*([A-Z0-9]*)"
+      ]
+    },
+    {
+      "name": "Interest Appraised",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "rights appraised",
+          "interest appraised",
+          "property rights appraised"
+        ],
+        "include": [
+          "summary",
+          "introduction"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Intended Use",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "intended use"
+        ],
+        "include": [
+          "summary",
+          "introduction",
+          "scope of work",
+          "intended user"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "values",
+          "paragraphs"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "what is the intended use of this report?"
+      }
+    },
+    {
+      "name": "Intended User",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "intended user",
+          "intended users"
+        ],
+        "include": [
+          "intended use",
+          "purpose",
+          "client",
+          "scope of work"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "paragraphs"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "PERSON",
+          "ORG",
+          "NORP"
+        ]
+      }
+    },
+    {
+      "name": "Extraordinary Assumptions",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "extraordinary assumptions"
+        ],
+        "include": [
+          "hypothetical conditions",
+          "scope of work"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "paragraphs"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "are there any extraordinary assumptions?"
+      }
+    },
+    {
+      "name": "Hypothetical Conditions",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "hypothetical conditions"
+        ],
+        "include": [
+          "extraordinary assumptions",
+          "scope of work"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "paragraphs"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "are there any hypothetical conditions?"
+      }
+    },
+    {
+      "name": "USPAP Compliance",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "lookup",
+      "pages": "0-5",
+      "search": {
+        "terms": [
+          "uspap"
+        ],
+        "include": [],
+        "exclude": [
+          "contents"
+        ]
+      },
+      "values": [
+        "Yes",
+        "No"
+      ]
+    },
+    {
+      "name": "FIRREA Compliance",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "lookup",
+      "pages": "0-5",
+      "search": {
+        "terms": [
+          "firrea"
+        ],
+        "include": [],
+        "exclude": [
+          "contents"
+        ]
+      },
+      "values": [
+        "Yes",
+        "No"
+      ]
+    },
+    {
+      "name": "Appraiser(s) Name and Company",
+      "group": "Appraisal Information",
+      "enabled": true,
+      "type": "regex",
+      "patterns": []
+    },
+    {
+      "name": "Property Name",
+      "group": "Property Identification",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "property name",
+          "name"
+        ],
+        "include": [
+          "introduction",
+          "summary",
+          "property address",
+          "location"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Address",
+      "group": "Property Identification",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "property address",
+          "property location",
+          "address",
+          "location"
+        ],
+        "include": [
+          "introduction",
+          "summary",
+          "property name",
+          "name"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "ORG",
+          "GPE",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "Assessor Parcel Number",
+      "group": "Property Identification",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "assessor's parcel number",
+          "parcel number",
+          "parcel no",
+          "assessor's parcel no",
+          "apn"
+        ],
+        "include": [
+          "introduction",
+          "summary",
+          "property name",
+          "name"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Section Block Lot",
+      "group": "Property Identification",
+      "enabled": true,
+      "type": "regex",
+      "patterns": []
+    },
+    {
+      "name": "Property Owner",
+      "group": "Property Identification",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "current owner",
+          "property owner",
+          "ownership",
+          "current ownership",
+          "currently vested in"
+        ],
+        "include": [],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "paragraphs"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "PERSON",
+          "ORG",
+          "NORP"
+        ]
+      }
+    },
+    {
+      "name": "Purchase Date",
+      "group": "Property Identification",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "purchase date",
+          "transfer date"
+        ],
+        "include": [
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "paragraphs"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "DATE",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "Purchase Price",
+      "group": "Property Identification",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "purchase price"
+        ],
+        "include": [
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "paragraphs"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "CARDINAL",
+          "MONEY"
+        ]
+      }
+    },
+    {
+      "name": "Sales History",
+      "group": "Property Identification",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "sales history"
+        ],
+        "include": [
+          "ownership"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "paragraphs"
+        ]
+      }
+    },
+    {
+      "name": "Property Type",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "property type"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Land Area",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "land area"
+        ],
+        "include": [
+          "site description",
+          "summary",
+          "sf",
+          "sqft"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "CARDINAL",
+          "QUANTITY"
+        ]
+      }
+    },
+    {
+      "name": "Site Utility",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "site utility"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Site Topography",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "site topography",
+          "topography"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "paragraphs"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "what is the topography level?"
+      }
+    },
+    {
+      "name": "Site Shape",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "site shape",
+          "shape"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "paragraphs"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "what is the shape?"
+      }
+    },
+    {
+      "name": "Frontage",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "frontage"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "paragraphs"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "what is the frontage?"
+      }
+    },
+    {
+      "name": "Access",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "accessibility",
+          "access"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Visibility",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "visibility"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "No. of Parking Spaces",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "parking spaces",
+          "parking space",
+          "parking"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "values",
+          "paragraphs"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "how many parking spaces are there?"
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "CARDINAL",
+          "QUANTITY"
+        ]
+      }
+    },
+    {
+      "name": "Parking Type",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "parking",
+          "parking type"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "values",
+          "paragraphs"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "can you describe the parking type?"
+      }
+    },
+    {
+      "name": "Zoning",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "zoning"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Property Condition",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "property condition",
+          "condition"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Flood Zone Code",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "flood zone"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Special Flood Hazard Area",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "flood hazard"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Flood Map Number",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "flood map number"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Flood Map Date",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "flood map date"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "DATE",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "Property Rating",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "property rating"
+        ],
+        "include": [
+          "site description",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Highest and Best Use (As Vacant)",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "as vacant"
+        ],
+        "include": [
+          "site description",
+          "summary",
+          "best use"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Highest and Best Use (As Improved)",
+      "group": "Site Description",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "as improved"
+        ],
+        "include": [
+          "site description",
+          "summary",
+          "best use"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Year Built",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "year built"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "DATE",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "Gross Building Area",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "gross building area",
+          "gba"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "summary",
+          "sf",
+          "sqft",
+          "acres"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "QUANTITY",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "Net Rentable Area",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "net rentable area"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "summary",
+          "sf",
+          "sqft",
+          "acres"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "QUANTITY",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "Land to Building Ratio",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "land to building ratio"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "summary",
+          "sf",
+          "sqft",
+          "acres"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "QUANTITY",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "Actual Age",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "actual age"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "summary",
+          "years"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "DATE",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "Effective Age",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "effective age"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "summary",
+          "years"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "DATE",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "Economic Life",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "economic life"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "summary",
+          "years"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "DATE",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "Remaining Economic Life",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "remaining economic life",
+          "rel"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "summary",
+          "years"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "DATE",
+          "CARDINAL"
+        ]
+      }
+    },
+    {
+      "name": "No. of Buildings",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "no. of buildings",
+          "number of buildings"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "CARDINAL",
+          "QUANTITY"
+        ]
+      }
+    },
+    {
+      "name": "No. of Stories",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "no. of stories",
+          "number of stories"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "CARDINAL",
+          "QUANTITY"
+        ]
+      }
+    },
+    {
+      "name": "No. of Units",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "no. of units",
+          "number of units"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "summary"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "CARDINAL",
+          "QUANTITY"
+        ]
+      }
+    },
+    {
+      "name": "Building Quality",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "building quality",
+          "quality"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "building"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "can you describe the quality of the building?"
+      }
+    },
+    {
+      "name": "Building Condition",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "building condition",
+          "condition"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "building"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "can you describe the condition of the building?"
+      }
+    },
+    {
+      "name": "Construction Type",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "construction type",
+          "construction"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "building"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Foundation",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "foundation"
+        ],
+        "include": [
+          "site description",
+          "improvement details",
+          "building"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Framing",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "framing"
+        ],
+        "include": [
+          "site description",
+          "improvement details"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Flooring",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "flooring"
+        ],
+        "include": [
+          "site description",
+          "improvement details"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Roof Type",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "roof type",
+          "roofing",
+          "roof"
+        ],
+        "include": [
+          "site description",
+          "improvement details"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Windows",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "windows"
+        ],
+        "include": [
+          "site description",
+          "improvement details"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Doors",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "doors"
+        ],
+        "include": [
+          "site description",
+          "improvement details"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Heat Source",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "heat source"
+        ],
+        "include": [
+          "site description",
+          "improvement details"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "HVAC",
+      "group": "Improvement Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "hvac",
+          "h.v.a.c"
+        ],
+        "include": [
+          "site description",
+          "improvement details"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Occupancy Status",
+      "group": "Occupancy Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "occupancy status"
+        ],
+        "include": [
+          "occupancy"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Occupancy Type",
+      "group": "Occupancy Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "occupancy type"
+        ],
+        "include": [
+          "occupancy"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "% Occupancy Type",
+      "group": "Occupancy Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "occupancy type"
+        ],
+        "include": [],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": ["PERCENT", "CARDINAL"]
+      }
+    },
+    {
+      "name": "No. of Tenants",
+      "group": "Occupancy Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "no. of tenants",
+          "tenants",
+          "number of tenants"
+        ],
+        "include": [],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": ["QUANTITY", "CARDINAL"]
+      }
+    },
+    {
+      "name": "Valuation Methodology",
+      "group": "Valuation Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "valuation methodology",
+          "value premise"
+        ],
+        "include": [],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "Exposure Time",
+      "group": "Valuation Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "exposure time",
+          "exposure period"
+        ],
+        "include": ["summary", "months", "marketing"],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "values",
+          "paragraphs"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "how much is the exposure time?"
+      },
+      "expects": {
+        "patterns": [],
+        "entities": ["DATE", "CARDINAL"]
+      }
+    },
+    {
+      "name": "Marketing Time",
+      "group": "Valuation Details",
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "marketing time",
+          "marketing period"
+        ],
+        "include": ["summary", "exposure", "months"],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys",
+          "values",
+          "paragraphs"
+        ]
+      },
+      "text_extract": {
+        "type": "SHORT",
+        "method": "QA",
+        "question": "how much is the marketing time?"
+      },
+      "expects": {
+        "patterns": [],
+        "entities": ["DATE", "CARDINAL"]
+      }
+    },
+    {
+      "name": "Cost Approach Estimate",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Sales Comparison Approach Estimate",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Income Capitalization Approach Estimate",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Potential Gross Income",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Stabilized Vacancy Rate",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Collection Loss",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Effective Gross Income",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Total Expenses",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Net Operating Income",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Capitalization Rate",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Direct Capitalization Estimate",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Discount Rate",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Discounted Cash Flow Estimate",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Insurable Value Estimate",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Replacement Cost New",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Market Value (As-Is)",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Prospective Market Value (As-Completed)",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Prospective Market Value (As-Stabilized)",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Insurable Value for Flood",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Disposition Value",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    },
+    {
+      "name": "Liquidation Value",
+      "group": "Valuation Details",
+      "enabled": false,
+      "type": "search"
+    }
+  ]
+}
