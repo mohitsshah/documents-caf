@@ -178,6 +178,7 @@ class Extractor(object):
         content = self.content
         name = item["name"]
         method = item["type"]
+        group = item["group"]
         pages_list = []
         if "pages" in item and item["pages"] is not None:
             tmp = item["pages"].split("-")
@@ -211,7 +212,8 @@ class Extractor(object):
                                     "Method": ans_method,
                                     "Source": " ".join([key, value]),
                                     "Region": "key",
-                                    "Page": m[0]
+                                    "Page": m[0],
+                                    "Group": group
                                 }
                                 return res
                 if "values" in regions:
@@ -230,7 +232,8 @@ class Extractor(object):
                                     "Method": ans_method,
                                     "Source": " ".join([key, value]),
                                     "Region": "value",
-                                    "Page": m[0]
+                                    "Page": m[0],
+                                    "Group": group
                                 }
                                 return res
                 if "paragraphs" in regions:
@@ -248,7 +251,8 @@ class Extractor(object):
                                     "Method": ans_method,
                                     "Source": value,
                                     "Region": "paragraph",
-                                    "Page": m[0]
+                                    "Page": m[0],
+                                    "Group": group
                                 }
                                 return res
             return {
@@ -258,7 +262,8 @@ class Extractor(object):
                 "Method": None,
                 "Source": None,
                 "Region": None,
-                "Page": None
+                "Page": None,
+                "Group": group
             }
 
         elif method == "lookup":
@@ -279,7 +284,8 @@ class Extractor(object):
                 "Method": "lookup",
                 "Source": None,
                 "Region": None,
-                "Page": ans_page
+                "Page": ans_page,
+                "Group": group
             }
             return res
         elif method == "regex":
@@ -298,7 +304,8 @@ class Extractor(object):
                 "Method": "regex",
                 "Source": None,
                 "Region": None,
-                "Page": ans_page
+                "Page": ans_page,
+                "Group": group
             }
             return res
 
@@ -306,7 +313,7 @@ class Extractor(object):
         defs = self.defs
         if defs is None:
             return None
-        df = pd.DataFrame(columns=["Name", "Value", "Type", "Method", "Region", "Source", "Page"])
+        df = pd.DataFrame(columns=["Name", "Value", "Type", "Method", "Region", "Source", "Page", "Group"])
         for item in defs:
             r = self._extract_item(item)
             df = df.append(r, ignore_index=True)
