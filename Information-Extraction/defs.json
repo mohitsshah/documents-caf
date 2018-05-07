@@ -1693,7 +1693,10 @@
       },
       "expects": {
         "patterns": [],
-        "entities": ["PERCENT", "CARDINAL"]
+        "entities": [
+          "PERCENT",
+          "CARDINAL"
+        ]
       }
     },
     {
@@ -1718,7 +1721,10 @@
       },
       "expects": {
         "patterns": [],
-        "entities": ["QUANTITY", "CARDINAL"]
+        "entities": [
+          "QUANTITY",
+          "CARDINAL"
+        ]
       }
     },
     {
@@ -1752,7 +1758,11 @@
           "exposure time",
           "exposure period"
         ],
-        "include": ["summary", "months", "marketing"],
+        "include": [
+          "summary",
+          "months",
+          "marketing"
+        ],
         "exclude": [
           "contents"
         ],
@@ -1769,7 +1779,10 @@
       },
       "expects": {
         "patterns": [],
-        "entities": ["DATE", "CARDINAL"]
+        "entities": [
+          "DATE",
+          "CARDINAL"
+        ]
       }
     },
     {
@@ -1783,7 +1796,11 @@
           "marketing time",
           "marketing period"
         ],
-        "include": ["summary", "exposure", "months"],
+        "include": [
+          "summary",
+          "exposure",
+          "months"
+        ],
         "exclude": [
           "contents"
         ],
@@ -1800,68 +1817,308 @@
       },
       "expects": {
         "patterns": [],
-        "entities": ["DATE", "CARDINAL"]
+        "entities": [
+          "DATE",
+          "CARDINAL"
+        ]
       }
     },
     {
       "name": "Cost Approach Estimate",
       "group": "Valuation Details",
-      "enabled": false,
-      "type": "search"
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "cost approach"
+        ],
+        "include": [
+          "summary",
+          "sales comparison",
+          "valuation"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      }
     },
     {
       "name": "Sales Comparison Approach Estimate",
       "group": "Valuation Details",
-      "enabled": false,
-      "type": "search"
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "sales comparison approach",
+          "sales comparison"
+        ],
+        "include": [
+          "summary",
+          "cost approach",
+          "income capitalization"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "MONEY",
+          "CARDINAL"
+        ]
+      }
     },
     {
       "name": "Income Capitalization Approach Estimate",
       "group": "Valuation Details",
-      "enabled": false,
-      "type": "search"
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "income capitalization",
+          "income approach",
+          "direct capitalization"
+        ],
+        "include": [
+          "summary",
+          "cost approach",
+          "sales comparison"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "MONEY",
+          "CARDINAL"
+        ]
+      }
     },
     {
       "name": "Potential Gross Income",
       "group": "Valuation Details",
-      "enabled": false,
-      "type": "search"
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "potential gross income"
+        ],
+        "include": [
+          "summary",
+          "cost approach",
+          "income capitalization"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "MONEY",
+          "CARDINAL"
+        ]
+      }
     },
     {
       "name": "Stabilized Vacancy Rate",
       "group": "Valuation Details",
-      "enabled": false,
-      "type": "search"
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "stabilized vacancy rate",
+          "vacancy rate"
+        ],
+        "include": [
+          "summary",
+          "cost approach",
+          "income capitalization"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "PERCENT",
+          "CARDINAL"
+        ]
+      }
     },
     {
       "name": "Collection Loss",
       "group": "Valuation Details",
-      "enabled": false,
-      "type": "search"
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "collection loss"
+        ],
+        "include": [
+          "summary",
+          "cost approach",
+          "income capitalization"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "PERCENT",
+          "CARDINAL"
+        ]
+      }
     },
     {
       "name": "Effective Gross Income",
       "group": "Valuation Details",
-      "enabled": false,
-      "type": "search"
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "effective gross income"
+        ],
+        "include": [
+          "summary",
+          "cost approach",
+          "income capitalization"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "MONEY",
+          "CARDINAL"
+        ]
+      }
     },
     {
       "name": "Total Expenses",
       "group": "Valuation Details",
-      "enabled": false,
-      "type": "search"
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "total expenses"
+        ],
+        "include": [
+          "summary",
+          "cost approach",
+          "income capitalization"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "MONEY",
+          "CARDINAL"
+        ]
+      }
     },
     {
       "name": "Net Operating Income",
       "group": "Valuation Details",
-      "enabled": false,
-      "type": "search"
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "net operating income"
+        ],
+        "include": [
+          "summary",
+          "cost approach",
+          "income capitalization"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "MONEY",
+          "CARDINAL"
+        ]
+      }
     },
     {
       "name": "Capitalization Rate",
       "group": "Valuation Details",
-      "enabled": false,
-      "type": "search"
+      "enabled": true,
+      "type": "search",
+      "pages": null,
+      "search": {
+        "terms": [
+          "capitalization rate"
+        ],
+        "include": [
+          "summary",
+          "cost approach",
+          "income capitalization"
+        ],
+        "exclude": [
+          "contents"
+        ],
+        "regions": [
+          "keys"
+        ]
+      },
+      "expects": {
+        "patterns": [],
+        "entities": [
+          "PERCENT",
+          "CARDINAL"
+        ]
+      }
     },
     {
       "name": "Direct Capitalization Estimate",
