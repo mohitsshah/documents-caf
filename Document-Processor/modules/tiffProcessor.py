@@ -112,11 +112,20 @@ class Reader(object):
         return words
 
     def get_orientation(self, image_file):
-        or_file = os.path.join(self.file_path, "orientation")
-        cmd = "tesseract --psm 0 " + image_file + " " + or_file
+        or_file = os.path.join(self.file_path, "orientation.txt")
+        cmd = "tesseract --psm 0 " + image_file + " stdout > " + or_file
         os.system(cmd)
         or_text = open(or_file).read()
-        return or_text
+        if len(or_text) > 0:
+            lines = or_text.split("\n")
+            lines = [l for l in lines if len(l) > 0]
+            tmp = {}
+            for l in lines:
+                items = l.split(":")
+                tmp[items[0]] = items[1].rstrip().lstrip()
+            return float(tmp["Orientation in degrees"])
+        else:
+            return 0.
 
     def rotate_image(self, image_file, orientation):
         rotation = int(360 - orientation)
@@ -126,10 +135,9 @@ class Reader(object):
         return image_file
 
     def get_page_text(self, image_file):
-        # osd = self.get_orientation(image_file)
-        # orientation = osd["orient_deg"]
-        # if orientation != 0:
-        #     image_file = self.rotate_image(image_file, orientation)
+        orientation = self.get_orientation(image_file)
+        if orientation != 0:
+            image_file = self.rotate_image(image_file, orientation)
         ocr_api = PageOCR(image_file, self.tessdata)
         doc = ocr_api.get_page()
         words = []
