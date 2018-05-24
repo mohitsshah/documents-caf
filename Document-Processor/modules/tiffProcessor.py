@@ -4,6 +4,7 @@ import argparse
 import re
 import numpy as np
 from tesserocr import PyTessBaseAPI, RIL, PSM, iterate_level, OEM
+import shutil
 
 BlockType = [
     "UNKNOWN",
@@ -123,8 +124,12 @@ class Reader(object):
             for l in lines:
                 items = l.split(":")
                 tmp[items[0]] = items[1].rstrip().lstrip()
+            if os.path.exists(or_file):
+                os.remove(or_file)
             return float(tmp["Orientation in degrees"])
         else:
+            if os.path.exists(or_file):
+                os.remove(or_file)
             return 0.
 
     def rotate_image(self, image_file, orientation):
@@ -178,6 +183,7 @@ class Reader(object):
             document["pages"].append({"words": words})
         with open(os.path.join(self.file_path, self.file_name + ".json"), "w") as fi:
             fi.write(json.dumps(document))
+        shutil.rmtree(image_dir)
         return True, None
 
 

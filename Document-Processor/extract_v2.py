@@ -61,7 +61,7 @@ if __name__ == '__main__':
     flags.add_argument("-tessdata", type=str, default="", help="Path to Tessdata model (v4) for tesserocr")
     flags.add_argument("-tessdata3", type=str, default="", help="Path to Tessdata model (v3) for osd")
     args = flags.parse_args()
-    try:
-        run(args)
-    except Exception as e:
-        print(str(e))
+    # try:
+    run(args)
+    # except Exception as e:
+        # print(str(e))

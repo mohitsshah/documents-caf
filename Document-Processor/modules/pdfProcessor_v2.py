@@ -364,10 +364,10 @@ class Reader(object):
                     else:
                         if width == box[2] and height == box[3]:
                             if image_file is not None:
-                                osd = self.get_orientation(image_file)
-                                orientation = osd["orient_deg"]
-                                if orientation != 0:
-                                    image_file = self.rotate_image(image_file, orientation)
+                                # osd = self.get_orientation(image_file)
+                                # orientation = osd["orient_deg"]
+                                # if orientation != 0:
+                                #     image_file = self.rotate_image(image_file, orientation)
                                 ocr_api = PageOCR(image_file, self.tessdata)
                                 doc = ocr_api.get_page()
                                 if doc is not None:
@@ -394,10 +394,10 @@ class Reader(object):
         if len(words) == 0:
             image_file = self.convert_page_to_image(os.path.join(self.file_path, self.file_name), id,
                                                     overwrite=self.overwrite)
-            osd = self.get_orientation(image_file)
-            orientation = osd["orient_deg"]
-            if orientation != 0:
-                image_file = self.rotate_image(image_file, orientation)
+            # osd = self.get_orientation(image_file)
+            # orientation = osd["orient_deg"]
+            # if orientation != 0:
+            #     image_file = self.rotate_image(image_file, orientation)
             ocr_api = PageOCR(image_file, self.tessdata)
             doc = ocr_api.get_page()
             if doc is not None:
